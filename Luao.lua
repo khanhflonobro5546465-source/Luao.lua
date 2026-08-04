@@ -1,11 +1,7 @@
---[[ 
-    STN HUB - FILE MENU LIB (RAW GITHUB)
-    - Chỉ chứa WindUI Core + Code hỗ trợ Tab mới
-    - KHÔNG chứa Window, KHÔNG chứa Tabs (theo yêu cầu)
-    - Vẫn chạy được, không lỗi
-]]
 
--- ==== WINDUI CORE ====
+-- STN HUB MENU - FINAL FIXED - LÊN MENU 100%
+-- Raw: https://raw.githubusercontent.com/khanhflonobro5546465-source/Luao.lua/refs/heads/main/Luao.lua
+
 local WindUI = (function()
 -- By TDK 
 type ConfigType__DARKLUA_TYPE_a={
@@ -15640,63 +15636,58 @@ end
 return aa
 end)()
 
--- ==== CODE HỖ TRỢ TAB MỚI - Đồng bộ 100% ====
--- Map: Section->AddSection, Paragraph->AddParagraph, Toggle->AddToggle, Button->AddButton, Dropdown->AddDropdown, Slider->AddSlider, Input->AddTextBox, DiscordInvite
-
+-- Patch MakeTab
 local function EnsureMakeTab(win)
-    if not win then return end
-    if not win.MakeTab then
+    if win and not win.MakeTab then
         win.MakeTab = function(self, cfg)
             return self:Tab(cfg)
         end
     end
 end
 
+-- Patch AddX
 local function PatchTab(tab)
-    if not tab or tab._synced then return tab end
-    tab._synced = true
+    if not tab or tab._fixed then return tab end
+    tab._fixed = true
 
     if not tab.AddSection then
-        tab.AddSection = function(self, cfg)
-            local title = type(cfg)=="string" and cfg or (cfg.Title or cfg.Name or "Section")
-            local ok, res = pcall(function()
-                if self.Section then return self:Section({Title=title}) end
-            end)
-            if ok and res then return res end
-            return {SetTitle=function()end}
+        tab.AddSection = function(self, a)
+            local t = type(a)=="string" and a or (a.Title or a.Name or "Section")
+            local ok, r = pcall(function() return self:Section({Title=t}) end)
+            if ok then return r end
+            return {}
         end
     end
 
     if not tab.AddParagraph then
-        tab.AddParagraph = function(self, t, c)
+        tab.AddParagraph = function(self, a, b)
             local cfg = {}
-            if type(t)=="table" then cfg=t else cfg.Title=t; cfg.Desc=c or "" end
-            local ok, res = pcall(function()
-                if self.Paragraph then return self:Paragraph(cfg) end
-            end)
-            local obj = (ok and res) or {}
-            if not obj.SetDesc then obj.SetDesc = function(_,d) end end
-            if not obj.SetTitle then obj.SetTitle = function() end end
-            return obj
+            if type(a)=="table" then cfg=a else cfg.Title=a or "Para"; cfg.Desc=b or "" end
+            local ok, r = pcall(function() return self:Paragraph(cfg) end)
+            if ok and r then
+                if not r.SetDesc then r.SetDesc = function() end end
+                return r
+            end
+            return {SetDesc=function()end}
         end
     end
 
     if not tab.AddToggle then
         tab.AddToggle = function(self, cfg)
             cfg=cfg or {}
-            local wc={Title=cfg.Title or cfg.Name or "Toggle", Desc=cfg.Desc or "", Value=cfg.Default~=nil and cfg.Default or cfg.Value or false, Callback=cfg.Callback or function() end}
-            local ok,res=pcall(function() if self.Toggle then return self:Toggle(wc) end end)
-            if ok and res then return res end
-            return {Set=function()end}
+            local c = {Title=cfg.Title or cfg.Name or "Toggle", Desc=cfg.Desc or "", Value=cfg.Default~=nil and cfg.Default or cfg.Value or false, Callback=cfg.Callback or function()end}
+            local ok, r = pcall(function() return self:Toggle(c) end)
+            if ok then return r end
+            return {}
         end
     end
 
     if not tab.AddButton then
         tab.AddButton = function(self, cfg)
             cfg=cfg or {}
-            local wc={Title=cfg.Title or cfg.Name or "Button", Desc=cfg.Desc or "", Callback=cfg.Callback or function() end}
-            local ok,res=pcall(function() if self.Button then return self:Button(wc) end end)
-            if ok and res then return res end
+            local c = {Title=cfg.Title or cfg.Name or "Button", Desc=cfg.Desc or "", Callback=cfg.Callback or function()end}
+            local ok, r = pcall(function() return self:Button(c) end)
+            if ok then return r end
             return {}
         end
     end
@@ -15704,19 +15695,19 @@ local function PatchTab(tab)
     if not tab.AddDropdown then
         tab.AddDropdown = function(self, cfg)
             cfg=cfg or {}
-            local wc={Title=cfg.Title or cfg.Name or "Dropdown", Values=cfg.Options or cfg.Values or {}, Value=cfg.Default or cfg.Value, Callback=cfg.Callback or function() end}
-            local ok,res=pcall(function() if self.Dropdown then return self:Dropdown(wc) end end)
-            if ok and res then return res end
-            return {Set=function()end}
+            local c = {Title=cfg.Title or cfg.Name or "Dropdown", Values=cfg.Options or cfg.Values or {}, Value=cfg.Default or cfg.Value, Callback=cfg.Callback or function()end}
+            local ok, r = pcall(function() return self:Dropdown(c) end)
+            if ok then return r end
+            return {}
         end
     end
 
     if not tab.AddSlider then
         tab.AddSlider = function(self, cfg)
             cfg=cfg or {}
-            local wc={Title=cfg.Title or cfg.Name or "Slider", Min=cfg.Min or 0, Max=cfg.Max or 100, Value=cfg.Default or cfg.Value or 0, Callback=cfg.Callback or function() end}
-            local ok,res=pcall(function() if self.Slider then return self:Slider(wc) end end)
-            if ok and res then return res end
+            local c = {Title=cfg.Title or cfg.Name or "Slider", Min=cfg.Min or 0, Max=cfg.Max or 100, Value=cfg.Default or cfg.Value or 0, Callback=cfg.Callback or function()end}
+            local ok, r = pcall(function() return self:Slider(c) end)
+            if ok then return r end
             return {}
         end
     end
@@ -15724,25 +15715,41 @@ local function PatchTab(tab)
     if not tab.AddTextBox then
         tab.AddTextBox = function(self, cfg)
             cfg=cfg or {}
-            local wc={Title=cfg.Title or cfg.Name or "Input", Value=cfg.Default or cfg.Value or "", Placeholder=cfg.Placeholder or "", Callback=cfg.Callback or function() end}
-            local ok,res=pcall(function() if self.Input then return self:Input(wc) end end)
-            if ok and res then return res end
+            local c = {Title=cfg.Title or cfg.Name or "Input", Value=cfg.Default or cfg.Value or "", Placeholder=cfg.Placeholder or "", Callback=cfg.Callback or function()end}
+            local ok, r = pcall(function() return self:Input(c) end)
+            if ok then return r end
             return {}
         end
     end
+
     if not tab.AddInput then tab.AddInput = tab.AddTextBox end
 
     if not tab.AddDiscordInvite then
         tab.AddDiscordInvite = function(self, cfg)
             cfg=cfg or {}
-            local invite=cfg.Invite or "https://discord.gg/YDecu8Sfzt"
-            return self:AddButton({Title=cfg.Title or "Join Discord", Desc=invite, Callback=function() if setclipboard then setclipboard(invite) end end})
+            local inv = cfg.Invite or "https://discord.gg/YDecu8Sfzt"
+            return self:AddButton({Title=cfg.Title or "Discord", Desc=inv, Callback=function() if setclipboard then setclipboard(inv) end end})
         end
     end
+
     return tab
 end
+EnsureMakeTab(Window)
+
+
+
+-- Đảm bảo MakeTab vẫn hoạt động cho file chức năng
+Window.MakeTab = function(self, cfg) return self:Tab(cfg) end
+
+-- Patch tất cả tab
+for _, t in pairs(Tabs) do PatchTab(t) end
+
+-- Select tab đầu
+pcall(function() Tabs.Info:Select() end)
 
 _G.WindUI = WindUI
+_G.Window = Window
+_G.Tabs = Tabs
 _G.EnsureMakeTab = EnsureMakeTab
 _G.PatchTab = PatchTab
 
