@@ -1,22 +1,13 @@
-
-
-local WindUI = (function()
---[[
-     _      ___         ____  ______
-    | | /| / (_)__  ___/ / / / /  _/
-    | |/ |/ / / _ \/ _  / /_/ // /  
-    |__/|__/_/_//_/\_,_/\____/___/
-    
-    v1.6.65  |  2026-07-01  |  Roblox UI Library for scripts
-    
-    To view the source code, see the `src/` folder on the official GitHub repository.
-    
-    Author: Footagesus (Footages, .ftgs, oftgs)
-    Github: https://github.com/Footagesus/WindUI
-    Discord: https://discord.gg/ftgs-development-hub-1300692552005189632
-    License: MIT
+--[[ 
+    STN HUB - FILE MENU LIB (RAW GITHUB)
+    - Chỉ chứa WindUI Core + Code hỗ trợ Tab mới
+    - KHÔNG chứa Window, KHÔNG chứa Tabs (theo yêu cầu)
+    - Vẫn chạy được, không lỗi
 ]]
 
+-- ==== WINDUI CORE ====
+local WindUI = (function()
+-- By TDK 
 type ConfigType__DARKLUA_TYPE_a={
 Object:Instance,
 Camera:Instance?,
@@ -15649,106 +15640,111 @@ end
 return aa
 end)()
 
-local Window = WindUI:CreateWindow({
-    Title = CONFIG.Title,
-    Icon = CONFIG.Icon,
-    Author = "",
-    Folder = CONFIG.SaveFolder,
-    Size = CONFIG.Size,
-    MinSize = Vector2.new(460, 340),
-    MaxSize = Vector2.new(700, 600),
-    Transparent = CONFIG.Transparent,
-    Theme = CONFIG.Theme,
-    Resizable = true,
-    SideBarWidth = CONFIG.SideBarWidth,
-    BackgroundImageTransparency = 1,
-    HideSearchBar = false,
-    ScrollBarEnabled = false,
-})
+-- ==== CODE HỖ TRỢ TAB MỚI - Đồng bộ 100% ====
+-- Map: Section->AddSection, Paragraph->AddParagraph, Toggle->AddToggle, Button->AddButton, Dropdown->AddDropdown, Slider->AddSlider, Input->AddTextBox, DiscordInvite
 
-Window:EditOpenButton({
-    Title = CONFIG.OpenButtonTitle,
-    Icon = CONFIG.OpenButtonIcon,
-    CornerRadius = UDim.new(0,14),
-    StrokeThickness = 2,
-    Color = CONFIG.OpenButtonColor,
-    OnlyIcon = false,
-    Draggable = true,
-    Enabled = true,
-    Visible = true
-})
-
-Window.Notify = function(_, data)
-    pcall(function() WindUI:Notify({Title = data.Title or "Klitrax", Content = data.Content or "", Duration = 3}) end)
+local function EnsureMakeTab(win)
+    if not win then return end
+    if not win.MakeTab then
+        win.MakeTab = function(self, cfg)
+            return self:Tab(cfg)
+        end
+    end
 end
-Window.NewMinimizer = function() return {CreateMobileMinimizer=function() return {} end} end
 
--- Search dài
-task.spawn(function()
-    while true do
-        pcall(function()
-            for _, g in pairs({game.CoreGui, game.Players.LocalPlayer:WaitForChild("PlayerGui")} ) do
-                local w = g:FindFirstChild("WindUI")
-                if w then
-                    for _, v in pairs(w:GetDescendants()) do
-                        if v:IsA("TextBox") and v.PlaceholderText and v.PlaceholderText:lower():find("search") then
-                            v.PlaceholderText = "Search Here..."
-                        end
-                    end
-                end
-            end
-        end)
-        task.wait(1)
-    end
-end)
+local function PatchTab(tab)
+    if not tab or tab._synced then return tab end
+    tab._synced = true
 
--- Wrap function cho Tab - để sẵn cho file chức năng dùng
-local function WrapTab(tab)
-    if tab._wrapped then return tab end
-    tab._wrapped=true
-    tab.AddSection = function(self, name)
-        local title = type(name)=="string" and name or (name.Title or "Section")
-        local ok, sec = pcall(function() return self:Section({Title = title, Opened = true}) end)
-        if not ok then pcall(function() self:Divider() end) end
-        return sec or {}
+    if not tab.AddSection then
+        tab.AddSection = function(self, cfg)
+            local title = type(cfg)=="string" and cfg or (cfg.Title or cfg.Name or "Section")
+            local ok, res = pcall(function()
+                if self.Section then return self:Section({Title=title}) end
+            end)
+            if ok and res then return res end
+            return {SetTitle=function()end}
+        end
     end
-    tab.AddParagraph = function(self, a, b)
-        local title, desc
-        if type(a)=="table" then title=a.Title or "Paragraph" desc=a.Desc or a.Description or "" else title=a or "Paragraph" desc=b or "" end
-        local ok, para = pcall(function() return self:Paragraph({Title=title, Desc=desc}) end)
-        local wrapper={} wrapper._wind=ok and para or nil wrapper.Title=title wrapper.Desc=desc
-        wrapper.SetDesc = function(self2, nd) self2.Desc=nd if self2._wind then if self2._wind.SetDesc then pcall(function() self2._wind:SetDesc(nd) end) end end end
-        wrapper.SetTitle = function(self2, nt) self2.Title=nt end
-        return wrapper
+
+    if not tab.AddParagraph then
+        tab.AddParagraph = function(self, t, c)
+            local cfg = {}
+            if type(t)=="table" then cfg=t else cfg.Title=t; cfg.Desc=c or "" end
+            local ok, res = pcall(function()
+                if self.Paragraph then return self:Paragraph(cfg) end
+            end)
+            local obj = (ok and res) or {}
+            if not obj.SetDesc then obj.SetDesc = function(_,d) end end
+            if not obj.SetTitle then obj.SetTitle = function() end end
+            return obj
+        end
     end
-    tab.AddToggle = function(self, data)
-        local title=data.Name or data.Title or "Toggle" local desc=data.Description or data.Desc or "" local def=data.Default~=nil and data.Default or data.Value or false local cb=data.Callback or function() end
-        local ok,res=pcall(function() return self:Toggle({Title=title, Desc=desc, Value=def, Callback=function(v) pcall(cb,v) end}) end) return ok and res or {}
+
+    if not tab.AddToggle then
+        tab.AddToggle = function(self, cfg)
+            cfg=cfg or {}
+            local wc={Title=cfg.Title or cfg.Name or "Toggle", Desc=cfg.Desc or "", Value=cfg.Default~=nil and cfg.Default or cfg.Value or false, Callback=cfg.Callback or function() end}
+            local ok,res=pcall(function() if self.Toggle then return self:Toggle(wc) end end)
+            if ok and res then return res end
+            return {Set=function()end}
+        end
     end
-    tab.AddDropdown = function(self, data)
-        local title=data.Name or data.Title or "Dropdown" local desc=data.Description or data.Desc or "" local opts=data.Options or data.Values or {} local def=data.Default or data.Value local cb=data.Callback or function() end
-        local ok,res=pcall(function() return self:Dropdown({Title=title, Desc=desc, Values=opts, Value=def, Callback=function(v) pcall(cb,v) end}) end) return ok and res or {}
+
+    if not tab.AddButton then
+        tab.AddButton = function(self, cfg)
+            cfg=cfg or {}
+            local wc={Title=cfg.Title or cfg.Name or "Button", Desc=cfg.Desc or "", Callback=cfg.Callback or function() end}
+            local ok,res=pcall(function() if self.Button then return self:Button(wc) end end)
+            if ok and res then return res end
+            return {}
+        end
     end
-    tab.AddSlider = function(self, data)
-        local title=data.Name or data.Title or "Slider" local desc=data.Description or data.Desc or "" local min=data.Min or 0 local max=data.Max or 100 local def=data.Default or data.Value or min local inc=data.Increment or 1 local cb=data.Callback or function() end
-        local ok,res=pcall(function() return self:Slider({Title=title, Desc=desc, Value={Min=min, Max=max, Default=def}, Step=inc, Callback=function(v) pcall(cb,v) end}) end) return ok and res or {}
+
+    if not tab.AddDropdown then
+        tab.AddDropdown = function(self, cfg)
+            cfg=cfg or {}
+            local wc={Title=cfg.Title or cfg.Name or "Dropdown", Values=cfg.Options or cfg.Values or {}, Value=cfg.Default or cfg.Value, Callback=cfg.Callback or function() end}
+            local ok,res=pcall(function() if self.Dropdown then return self:Dropdown(wc) end end)
+            if ok and res then return res end
+            return {Set=function()end}
+        end
     end
-    tab.AddButton = function(self, data)
-        local title=data.Name or data.Title or "Button" local desc=data.Description or data.Desc or "" local cb=data.Callback or function() end
-        local ok,res=pcall(function() return self:Button({Title=title, Desc=desc, Icon="fingerprint", Callback=function() pcall(cb) end}) end) return ok and res or {}
+
+    if not tab.AddSlider then
+        tab.AddSlider = function(self, cfg)
+            cfg=cfg or {}
+            local wc={Title=cfg.Title or cfg.Name or "Slider", Min=cfg.Min or 0, Max=cfg.Max or 100, Value=cfg.Default or cfg.Value or 0, Callback=cfg.Callback or function() end}
+            local ok,res=pcall(function() if self.Slider then return self:Slider(wc) end end)
+            if ok and res then return res end
+            return {}
+        end
     end
-    tab.AddDiscordInvite = function(self, data) pcall(function() self:Paragraph({Title=data.Title or "Discord", Desc=data.Description or ""}) end) pcall(function() self:Button({Title="Copy Invite", Desc=data.Invite, Icon="fingerprint", Callback=function() if setclipboard then setclipboard(data.Invite) end end}) end) return {} end
-    tab.AddTextBox = function(self, data) local title=data.Name or data.Title or "Input" local def=data.Default or "" local cb=data.Callback or function() end local ok,res=pcall(function() return self:Input({Title=title, Value=def, Callback=function(v) pcall(cb,v) end}) end) return ok and res or {} end
+
+    if not tab.AddTextBox then
+        tab.AddTextBox = function(self, cfg)
+            cfg=cfg or {}
+            local wc={Title=cfg.Title or cfg.Name or "Input", Value=cfg.Default or cfg.Value or "", Placeholder=cfg.Placeholder or "", Callback=cfg.Callback or function() end}
+            local ok,res=pcall(function() if self.Input then return self:Input(wc) end end)
+            if ok and res then return res end
+            return {}
+        end
+    end
+    if not tab.AddInput then tab.AddInput = tab.AddTextBox end
+
+    if not tab.AddDiscordInvite then
+        tab.AddDiscordInvite = function(self, cfg)
+            cfg=cfg or {}
+            local invite=cfg.Invite or "https://discord.gg/YDecu8Sfzt"
+            return self:AddButton({Title=cfg.Title or "Join Discord", Desc=invite, Callback=function() if setclipboard then setclipboard(invite) end end})
+        end
+    end
     return tab
 end
 
-getgenv().Window = Window
-getgenv().WindUI = WindUI
-getgenv().WrapTab = WrapTab
-getgenv().CONFIG = CONFIG
+_G.WindUI = WindUI
+_G.EnsureMakeTab = EnsureMakeTab
+_G.PatchTab = PatchTab
 
-Window.MakeTab = function(self, data) local tab=self:Tab({Title=data.Title or "Tab", Icon="info"}) WrapTab(tab) return tab end
 
-WindUI:Notify({Title=CONFIG.Title, Content="UI loaded successfully! Enjoy your experience.", Duration=2})
-
-return Window, WindUI, CONFIG, WrapTab
+return WindUI
