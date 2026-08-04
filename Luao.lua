@@ -1,5 +1,5 @@
 
--- Elitrax HUB MENU
+-- STN HUB MENU - FINAL FIXED - LÊN MENU 100%
 -- Raw: https://raw.githubusercontent.com/khanhflonobro5546465-source/Luao.lua/refs/heads/main/Luao.lua
 
 local WindUI = (function()
@@ -15764,6 +15764,22 @@ Window:EditOpenButton({
     Draggable = true
 })
 
+local Tabs = {
+    Info = Window:MakeTab({ Title = "Info And Status", Icon = "rbxassetid://6031302934" }),
+    Main = Window:MakeTab({ Title = "Farming", Icon = "rbxassetid://7733960981" }),
+    Settings = Window:MakeTab({ Title = "Setting", Icon = "rbxassetid://7734053495" }),
+    Fish = Window:MakeTab({ Title = "Fishing", Icon = "rbxassetid://6022668898" }),
+    Quests = Window:MakeTab({ Title = "Quest And Item", Icon = "rbxassetid://13075622619" }),
+    SeaEvent = Window:MakeTab({ Title = "Sea Event", Icon = "rbxassetid://7734068321" }),
+    Race = Window:MakeTab({ Title = "Mirage And Race", Icon = "rbxassetid://11162889532" }),
+    Prehistoric = Window:MakeTab({ Title = "Volcano Event", Icon = "rbxassetid://6031075938" }),
+    Esp = Window:MakeTab({ Title = "Stats And Esp", Icon = "rbxassetid://7040410130" }),
+    Raids = Window:MakeTab({ Title = "Fruit And Raid", Icon = "rbxassetid://11155986081" }),
+    Combat = Window:MakeTab({ Title = "Local Player", Icon = "rbxassetid://13075651575" }),
+    Travel = Window:MakeTab({ Title = "Teleport", Icon = "rbxassetid://7734056608" }),
+    Shop = Window:MakeTab({ Title = "Shopping", Icon = "rbxassetid://6031265976" }),
+    Misc = Window:MakeTab({ Title = "Miscellaneous", Icon = "rbxassetid://10709783577" })
+}
 
 -- Đảm bảo MakeTab vẫn hoạt động cho file chức năng
 Window.MakeTab = function(self, cfg) return self:Tab(cfg) end
