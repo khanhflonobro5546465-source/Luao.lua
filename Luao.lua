@@ -1,5 +1,5 @@
 
--- STN HUB MENU - FINAL FIXED - LÊN MENU 100%
+-- Elitrax HUB MENU - FINAL FIXED - LÊN MENU 100%
 -- Raw: https://raw.githubusercontent.com/khanhflonobro5546465-source/Luao.lua/refs/heads/main/Luao.lua
 
 local WindUI = (function()
