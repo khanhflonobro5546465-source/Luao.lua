@@ -1,5 +1,5 @@
 
--- STN HUB MENU - FINAL FIXED - LÊN MENU 100%
+-- Elitrax HUB MENU
 -- Raw: https://raw.githubusercontent.com/khanhflonobro5546465-source/Luao.lua/refs/heads/main/Luao.lua
 
 local WindUI = (function()
@@ -15736,6 +15736,33 @@ local function PatchTab(tab)
 end
 EnsureMakeTab(Window)
 
+local Window = WindUI:CreateWindow({
+    Title = "Elitrax Hub",
+    Icon = "flame",
+    Author = "https://discord.gg/Rg8hgksDk | Blox Fruit",
+    Folder = "Elitrax Hub_BF",
+    Size = UDim2.fromOffset(540, 300),
+    Transparent = true,
+    Theme = "Dark",
+    SideBarWidth = 190,
+    HasOutline = false,
+    HideSearchBar = true,
+    ScrollBarEnabled = false,
+    User = {
+        Enabled = true,
+        Anonymous = false
+    },
+})
+EnsureMakeTab(Window)
+
+Window:EditOpenButton({
+    Title = "Elitrax Hub - Open",
+    Icon = "flame",
+    CornerRadius = UDim.new(0, 6),
+    StrokeThickness = 2,
+    Color = ColorSequence.new(Color3.fromRGB(30, 30, 30), Color3.fromRGB(255, 255, 255)),
+    Draggable = true
+})
 
 
 -- Đảm bảo MakeTab vẫn hoạt động cho file chức năng
