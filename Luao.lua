@@ -1,5 +1,3 @@
--- Fixed version of redz-library-v5
--- Cleaned: removed line numbers, added missing spaces
 
 local a=cloneref or (function(...) return...end)
 
