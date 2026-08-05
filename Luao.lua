@@ -948,8 +948,8 @@ Padding=UDim.new(0,5)
 })
 
 local ar=E("ImageLabel",ao,{
-Position=UDim2.new(0,8,0.5),
-Size=UDim2.new(0,13,0,13),
+Position=UDim2.new(0,6,0.5),
+Size=UDim2.new(0,20,0,20),
 AnchorPoint=Vector2.new(0,0.5),
 BackgroundTransparency=1,
 ImageTransparency=0.3,
@@ -960,8 +960,8 @@ Image=am.Icon or""
 local as=string.sub(ar.Image,1,13)=="rbxassetid://"
 local at=ao.Title
 ar.Visible=as
-at.Size=UDim2.new(1,as and-25 or-15,1)
-at.Position=UDim2.fromOffset(as and 25 or 15) end
+at.Size=UDim2.new(1,as and-32 or-15,1)
+at.Position=UDim2.fromOffset(as and 32 or 15) end
 
 
 u(ar:GetPropertyChangedSignal"Image",as)
@@ -4063,99 +4063,86 @@ end)
 
 D.Draggable(ak,ad,0.5)
 
--- [ANIMATION] HIỆU ỨNG MỞ MENU VIP - ELASTIC POP + GLOW SWEEP (KHÔNG PHẢI TRƯỢT ĐƠN GIẢN)
+-- [ANIMATION] FIXED VIP - SCALE ONLY (KHÔNG ĐẨY NỘI DUNG)
 do
     local targetSize = ah
     local targetPos = UDim2.new(0.5,-targetSize.X.Offset/2,0.5,-targetSize.Y.Offset/2)
     
-    -- Trạng thái ban đầu: thu nhỏ, xoay nhẹ, tàng hình
-    ak.Size = UDim2.fromOffset(10,10)
-    ak.Position = UDim2.new(0.5,0,0.5,0)
-    ak.Rotation = -15
+    -- GIỮ NGUYÊN SIZE VÀ POS - chỉ scale
+    ak.Size = targetSize
+    ak.Position = targetPos
+    ak.Rotation = -8
+    ak.ClipsDescendants = false -- TẠM TẮT để không cắt khi scale
     local originalTransparency = s.Themes[s.Default.Theme].BackgroundTransparency or 0.2
-    ak.BackgroundTransparency = 1
-    if ak:FindFirstChildOfClass("UIGradient") then
-        ak:FindFirstChildOfClass("UIGradient").Offset = Vector2.new(-1,0)
-    end
+    ak.BackgroundTransparency = originalTransparency
     ad.Scale = 0
     
-    -- Tạo viền sáng chạy quanh
+    -- Glow viền
     local glowStroke = E("UIStroke","OpenGlow",ak,{
-        Color=Color3.fromRGB(120,140,255),
+        Color=Color3.fromRGB(130,150,255),
         Thickness=3,
         Transparency=1,
         ApplyStrokeMode=Enum.ApplyStrokeMode.Border
     })
     
-    -- Tạo bóng đổ phát sáng
+    -- Shadow phát sáng - giữ nguyên vị trí
     local shadowFX = E("Frame","ShadowFX",I,{
-        Size=UDim2.fromOffset(10,10),
-        Position=UDim2.new(0.5,0,0.5,0),
-        AnchorPoint=Vector2.new(0.5,0.5),
+        Size=targetSize,
+        Position=targetPos,
         BackgroundColor3=Color3.fromRGB(88,101,242),
         BackgroundTransparency=1,
         ZIndex=0,
         Elements={Corner=UDim.new(0,16)}
     })
-    shadowFX.ZIndex = 0
     
     task.spawn(function()
-        -- Phase 1: Bóng xuất hiện
-        j:Create(shadowFX, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            Size=UDim2.fromOffset(targetSize.X.Offset + 30, targetSize.Y.Offset + 30),
-            BackgroundTransparency=0.6
+        -- Phase 1: Glow nhẹ
+        j:Create(glowStroke, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Transparency=0.25
         }):Play()
-        j:Create(glowStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            Transparency=0.3
+        j:Create(shadowFX, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            BackgroundTransparency=0.65
         }):Play()
         
-        task.wait(0.1)
+        task.wait(0.05)
         
-        -- Phase 2: POP ELASTIC chính - NẢY RA
-        local tweenMain = j:Create(ak, TweenInfo.new(0.75, Enum.EasingStyle.Back, Enum.EasingDirection.Out, 0, false, 0), {
-            Size=targetSize,
-            Position=targetPos,
-            Rotation=2,
-            BackgroundTransparency=originalTransparency
-        })
-        local tweenScale = j:Create(ad, TweenInfo.new(0.75, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        -- Phase 2: POP SCALE - CHỈ SCALE, KHÔNG ĐỔI SIZE
+        local tweenScale = j:Create(ad, TweenInfo.new(0.65, Enum.EasingStyle.Back, Enum.EasingDirection.Out, 0, false, 0), {
             Scale=P(1)
         })
-        tweenMain:Play()
+        local tweenRot = j:Create(ak, TweenInfo.new(0.65, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Rotation=0
+        })
         tweenScale:Play()
+        tweenRot:Play()
         
-        -- Hiệu ứng gradient chạy
+        -- Gradient chạy
         if ak:FindFirstChildOfClass("UIGradient") then
-            j:Create(ak:FindFirstChildOfClass("UIGradient"), TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            local grad = ak:FindFirstChildOfClass("UIGradient")
+            grad.Offset = Vector2.new(-0.5,0)
+            j:Create(grad, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
                 Offset=Vector2.new(0,0)
             }):Play()
         end
         
-        tweenMain.Completed:Wait()
+        tweenScale.Completed:Wait()
         
-        -- Phase 3: Chỉnh lại Rotation về 0 với bounce nhẹ
-        j:Create(ak, TweenInfo.new(0.3, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {
-            Rotation=0
-        }):Play()
-        
-        -- Phase 4: Tắt glow và shadow
-        j:Create(glowStroke, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        -- Phase 3: Tắt glow
+        ak.ClipsDescendants = true -- Bật lại clip sau khi xong
+        j:Create(glowStroke, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
             Transparency=1,
-            Thickness=6,
-            Color=Color3.fromRGB(255,255,255)
+            Thickness=6
         }):Play()
-        j:Create(shadowFX, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            BackgroundTransparency=1,
-            Size=UDim2.fromOffset(targetSize.X.Offset + 80, targetSize.Y.Offset + 80)
+        j:Create(shadowFX, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            BackgroundTransparency=1
         }):Play()
         
-        task.delay(0.6, function()
+        task.delay(0.5, function()
             if glowStroke then glowStroke:Destroy() end
             if shadowFX then shadowFX:Destroy() end
         end)
     end)
 end
-
 
 
 local al=E("Folder","Components",ak)
