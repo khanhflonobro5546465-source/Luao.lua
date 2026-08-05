@@ -3637,21 +3637,28 @@ BackgroundTransparency=1,
 ClipsDescendants=true -- FIX BÊN TRONG PANEL TRÁI
 })
 
--- Logo thay chữ M - id 109680810107601
+-- Logo con rồng - ĐÃ TĂNG SIZE TO VỪA MẮT
 local logo=E("ImageLabel","Logo",leftPanel,{
-Size=UDim2.new(0,68,0,68),
-Position=UDim2.new(0.5,0,0,8),
+Size=UDim2.new(0,95,0,95),
+Position=UDim2.new(0.5,0,0,10),
 AnchorPoint=Vector2.new(0.5,0),
 BackgroundTransparency=1,
 Image="rbxassetid://109680810107601",
 ScaleType=Enum.ScaleType.Fit
 })
-E("UICorner",{CornerRadius=UDim.new(0,8)}).Parent=logo
+E("UICorner",{CornerRadius=UDim.new(0,14)}).Parent=logo
+-- Thêm viền sáng nhẹ cho nổi
+local logoStroke=E("UIStroke",logo,{
+Color=Color3.fromRGB(80,80,80),
+Thickness=1.5,
+Transparency=0.4
+})
+logoStroke.Parent=logo
 
 -- Search bar
 local searchFrame=E("Frame","SearchFrame",leftPanel,{
 Size=UDim2.new(1,-20,0,28),
-Position=UDim2.new(0,10,0,82),
+Position=UDim2.new(0,10,0,112),
 BackgroundTransparency=0,
 ThemeTag={BackgroundColor3="Colors.Buttons.Default"}
 })
@@ -3684,8 +3691,8 @@ ThemeTag={ImageColor3="Colors.Icons"}
 local af=E("ScrollingFrame","TabsScroll",leftPanel,{
 AutomaticCanvasSize=Enum.AutomaticSize.Y,
 ScrollingDirection=Enum.ScrollingDirection.Y,
-Position=UDim2.new(0,0,0,118),
-Size=UDim2.new(1,0,1,-118),
+Position=UDim2.new(0,0,0,150),
+Size=UDim2.new(1,0,1,-150),
 ScrollBarThickness=2.2,
 BackgroundTransparency=1,
 ScrollBarImageTransparency=0.2,
