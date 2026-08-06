@@ -1,5 +1,5 @@
--- Fixed version of redz-library-v5
--- Cleaned: removed line numbers, added missing spaces
+-- redz-library v7 | Tab ngang tren + theme den xuyen thau
+-- Base: ban goc (khong doi logic), chi doi layout tab + mau
 
 local a=cloneref or (function(...) return...end)
 
@@ -37,7 +37,7 @@ Darker={
 Colors={
 Background=ColorSequence.new{
 ColorSequenceKeypoint.new(0.00,Color3.fromRGB(0,0,0)),
-ColorSequenceKeypoint.new(0.50,Color3.fromRGB(8,8,8)),
+ColorSequenceKeypoint.new(0.50,Color3.fromRGB(10,10,10)),
 ColorSequenceKeypoint.new(1.00,Color3.fromRGB(0,0,0))
 },
 Primary=Color3.fromRGB(88,101,242),
@@ -55,8 +55,8 @@ Dialog={
 Background=Color3.fromRGB(10,10,10)
 },
 Buttons={
-Holding=Color3.fromRGB(30,30,30),
-Default=Color3.fromRGB(15,15,15)
+Holding=Color3.fromRGB(28,28,28),
+Default=Color3.fromRGB(14,14,14)
 },
 Border={
 Holding=Color3.fromRGB(60,60,60),
@@ -3625,125 +3625,90 @@ end
 local aa=function(
 
 aa, ab)
+-- ab = TopBar
 local ac=ab.Size.Y.Offset
-local TAB_BAR_HEIGHT=104
-local ad=UDim2.new(1,0,0,TAB_BAR_HEIGHT)
-local ae=UDim2.new(1,0,1,-(ac+TAB_BAR_HEIGHT))
+local HEADER_H=58
+local TABROW_H=34
+local TOP_H=ac+HEADER_H+TABROW_H
 
--- [HEADER HIỆN ĐẠI] Panel trên: logo lớn + search lớn + status pills + hàng tab ngang
-local leftPanel=E("Frame","LeftPanel",{
-Size=ad,
-Position=UDim2.new(0,0,0,ac),
-AnchorPoint=Vector2.new(0,0),
+-- [TAB TRÊN] Hàng tab ngang: CHÍNH LÀ TabsContainer (nút tab tự parent vào đây)
+local tabsBar=E("ScrollingFrame","TabsBar",{
+Size=UDim2.new(1,0,0,TABROW_H),
+Position=UDim2.new(0,0,0,ac+HEADER_H),
 BackgroundTransparency=1,
-ClipsDescendants=true
-})
-
--- Lớp kính mờ nền header
-local headerGlass=E("Frame","HeaderGlass",leftPanel,{
-Size=UDim2.new(1,-16,0,58),
-Position=UDim2.new(0,8,0,4),
-BackgroundColor3=Color3.fromRGB(10,10,10),
-BackgroundTransparency=0.35,
-BorderSizePixel=0
-})
-E("UICorner",{CornerRadius=UDim.new(0,14)}).Parent=headerGlass
-E("UIStroke",{Color=Color3.fromRGB(70,70,70),Thickness=1,Transparency=0.55}).Parent=headerGlass
-local headerGrad=E("UIGradient",{
-Rotation=90,
-Color=ColorSequence.new{
-ColorSequenceKeypoint.new(0,Color3.fromRGB(38,38,38)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(6,6,6))
+BorderSizePixel=0,
+ScrollBarThickness=2,
+ScrollBarImageTransparency=0.3,
+ScrollingDirection=Enum.ScrollingDirection.X,
+AutomaticCanvasSize=Enum.AutomaticSize.X,
+CanvasSize=UDim2.new(),
+ClipsDescendants=true,
+ThemeTag={ScrollBarImageColor3="Colors.ScrollBar"},
+Elements={
+Padding={PaddingLeft=UDim.new(0,12),PaddingRight=UDim.new(0,12),PaddingTop=UDim.new(0,4),PaddingBottom=UDim.new(0,6)},
+ListLayout={Padding=UDim.new(0,6)}
 }
 })
-headerGrad.Parent=headerGlass
 
--- Vòng sáng xoay quanh logo
-local logoRing=E("Frame","LogoRing",headerGlass,{
-Size=UDim2.new(0,54,0,54),
-Position=UDim2.new(0,10,0.5,0),
+local tabsLayout=tabsBar:FindFirstChildOfClass("UIListLayout")
+if tabsLayout then
+tabsLayout.FillDirection=Enum.FillDirection.Horizontal
+tabsLayout.VerticalAlignment=Enum.VerticalAlignment.Center
+tabsLayout.SortOrder=Enum.SortOrder.LayoutOrder
+end
+
+-- Header (logo + search + status) bám cùng cha với tabsBar
+local header=E("Frame","Header",{
+Size=UDim2.new(1,0,0,HEADER_H),
+Position=UDim2.new(0,0,0,ac),
+BackgroundTransparency=1
+})
+
+local function syncHeaderParent()
+if tabsBar.Parent then
+header.Parent=tabsBar.Parent
+end
+end
+u(tabsBar:GetPropertyChangedSignal"Parent",syncHeaderParent)
+syncHeaderParent()
+
+-- Logo (ID ảnh con rồng) trong khung bo tròn
+local logoHolder=E("Frame","LogoHolder",header,{
+Size=UDim2.new(0,46,0,46),
+Position=UDim2.new(0,12,0.5,0),
 AnchorPoint=Vector2.new(0,0.5),
-BackgroundColor3=Color3.fromRGB(255,255,255),
-BackgroundTransparency=0.85,
-BorderSizePixel=0
-})
-E("UICorner",{CornerRadius=UDim.new(0,14)}).Parent=logoRing
-local ringStroke=E("UIStroke",{Color=Color3.fromRGB(255,255,255),Thickness=1.4,Transparency=0.35})
-ringStroke.Parent=logoRing
-local ringGrad=E("UIGradient",{
-Color=ColorSequence.new{
-ColorSequenceKeypoint.new(0.00,Color3.fromRGB(255,80,80)),
-ColorSequenceKeypoint.new(0.50,Color3.fromRGB(255,190,90)),
-ColorSequenceKeypoint.new(1.00,Color3.fromRGB(120,90,255))
+BackgroundTransparency=0.35,
+ThemeTag={BackgroundColor3="Colors.Buttons.Default"},
+Elements={
+Corner=UDim.new(0,12),
+Stroke={Color=Color3.fromRGB(70,70,70),Thickness=1,Transparency=0.35}
 }
 })
-ringGrad.Parent=ringStroke
 
--- LOGO / ID ẢNH CON RỒNG (to hơn hẳn)
-local logo=E("ImageLabel","Logo",logoRing,{
-Size=UDim2.new(1,-6,1,-6),
-Position=UDim2.new(0.5,0,0.5,0),
+local logo=E("ImageLabel","Logo",logoHolder,{
+Size=UDim2.new(0,38,0,38),
+Position=UDim2.fromScale(0.5,0.5),
 AnchorPoint=Vector2.new(0.5,0.5),
 BackgroundTransparency=1,
 Image="rbxassetid://109680810107601",
 ScaleType=Enum.ScaleType.Fit
 })
-E("UICorner",{CornerRadius=UDim.new(0,11)}).Parent=logo
 
--- Tên + trạng thái
-local brand=E("TextLabel","Brand",headerGlass,{
-Size=UDim2.new(0,120,0,18),
-Position=UDim2.new(0,74,0,10),
-BackgroundTransparency=1,
-Text="REDZ HUB",
-TextSize=15,
-TextXAlignment=Enum.TextXAlignment.Left,
-TextColor3=Color3.fromRGB(245,245,245),
-ThemeTag={Font="Font.SemiBold"}
-})
-local brandGrad=E("UIGradient",{
-Color=ColorSequence.new{
-ColorSequenceKeypoint.new(0,Color3.fromRGB(255,255,255)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(255,120,120))
+-- Ô tìm kiếm to, hiện đại
+local searchFrame=E("Frame","SearchFrame",header,{
+Size=UDim2.new(1,-180,0,34),
+Position=UDim2.new(0,68,0.5,0),
+AnchorPoint=Vector2.new(0,0.5),
+BackgroundTransparency=0.2,
+ThemeTag={BackgroundColor3="Colors.Buttons.Default"},
+Elements={
+Corner=UDim.new(0,10),
+Stroke={Color=Color3.fromRGB(60,60,60),Thickness=1,Transparency=0.35}
 }
 })
-brandGrad.Parent=brand
-
-local statusDot=E("Frame","StatusDot",headerGlass,{
-Size=UDim2.new(0,7,0,7),
-Position=UDim2.new(0,75,0,34),
-BackgroundColor3=Color3.fromRGB(80,230,140),
-BorderSizePixel=0
-})
-E("UICorner",{CornerRadius=UDim.new(1,0)}).Parent=statusDot
-
-local statusText=E("TextLabel","StatusText",headerGlass,{
-Size=UDim2.new(0,180,0,14),
-Position=UDim2.new(0,88,0,30),
-BackgroundTransparency=1,
-Text="online · 60 fps · 00:00",
-TextSize=11,
-TextTransparency=0.25,
-TextXAlignment=Enum.TextXAlignment.Left,
-TextColor3=Color3.fromRGB(190,190,190),
-ThemeTag={Font="Font.Medium"}
-})
-
--- SEARCH BAR to hơn, nằm bên phải header
-local searchFrame=E("Frame","SearchFrame",headerGlass,{
-Size=UDim2.new(1,-290,0,36),
-Position=UDim2.new(1,-12,0.5,0),
-AnchorPoint=Vector2.new(1,0.5),
-BackgroundColor3=Color3.fromRGB(18,18,18),
-BackgroundTransparency=0.15,
-BorderSizePixel=0
-})
-E("UICorner",{CornerRadius=UDim.new(0,10)}).Parent=searchFrame
-local searchStroke=E("UIStroke",{Color=Color3.fromRGB(70,70,70),Thickness=1,Transparency=0.4})
-searchStroke.Parent=searchFrame
 
 local searchIcon=E("ImageLabel","SearchIcon",searchFrame,{
-Size=UDim2.new(0,18,0,18),
+Size=UDim2.new(0,16,0,16),
 Position=UDim2.new(0,10,0.5,0),
 AnchorPoint=Vector2.new(0,0.5),
 BackgroundTransparency=1,
@@ -3753,231 +3718,175 @@ ThemeTag={ImageColor3="Colors.Icons"}
 })
 
 local searchBox=E("TextBox","SearchBox",searchFrame,{
-Size=UDim2.new(1,-100,1,0),
-Position=UDim2.new(0,36,0,0),
+Size=UDim2.new(1,-104,1,0),
+Position=UDim2.new(0,34,0,0),
 BackgroundTransparency=1,
-PlaceholderText="Tìm tab hoặc chức năng...",
+PlaceholderText="Tìm tab / chức năng...",
 Text="",
-TextXAlignment=Enum.TextXAlignment.Left,
 ClearTextOnFocus=false,
-TextSize=14,
-TextColor3=Color3.fromRGB(240,240,240),
-ThemeTag={Font="Font.Medium"}
+TextXAlignment=Enum.TextXAlignment.Left,
+TextSize=13,
+ThemeTag={TextColor3="Colors.Text.Default",Font="Font.Medium"}
 })
 
--- Badge phím tắt "/"
-local kbBadge=E("Frame","KeyHint",searchFrame,{
-Size=UDim2.new(0,22,0,18),
-Position=UDim2.new(1,-10,0.5,0),
+local countLabel=E("TextLabel","Count",searchFrame,{
+Size=UDim2.new(0,44,0,18),
+Position=UDim2.new(1,-40,0.5,0),
 AnchorPoint=Vector2.new(1,0.5),
-BackgroundColor3=Color3.fromRGB(40,40,40),
-BackgroundTransparency=0.2,
-BorderSizePixel=0
+BackgroundTransparency=1,
+Text="",
+TextSize=10,
+TextXAlignment=Enum.TextXAlignment.Right,
+ThemeTag={TextColor3="Colors.Text.Darker",Font="Font.Medium"}
 })
-E("UICorner",{CornerRadius=UDim.new(0,5)}).Parent=kbBadge
-E("UIStroke",{Color=Color3.fromRGB(90,90,90),Thickness=1,Transparency=0.5}).Parent=kbBadge
-E("TextLabel","KeyText",kbBadge,{
-Size=UDim2.new(1,0,1,0),
+
+local keyBadge=E("Frame","KeyBadge",searchFrame,{
+Size=UDim2.new(0,22,0,18),
+Position=UDim2.new(1,-9,0.5,0),
+AnchorPoint=Vector2.new(1,0.5),
+BackgroundTransparency=0.4,
+ThemeTag={BackgroundColor3="Colors.Border.Default"},
+Elements={Corner=UDim.new(0,5)}
+})
+
+E("TextLabel","Key",keyBadge,{
+Size=UDim2.fromScale(1,1),
 BackgroundTransparency=1,
 Text="/",
-TextSize=12,
-TextColor3=Color3.fromRGB(200,200,200),
-ThemeTag={Font="Font.SemiBold"}
-})
-
--- Số kết quả tìm được
-local resultLabel=E("TextLabel","ResultCount",searchFrame,{
-Size=UDim2.new(0,60,0,16),
-Position=UDim2.new(1,-38,0.5,0),
-AnchorPoint=Vector2.new(1,0.5),
-BackgroundTransparency=1,
-Text="",
 TextSize=11,
-TextTransparency=0.3,
-TextXAlignment=Enum.TextXAlignment.Right,
-TextColor3=Color3.fromRGB(255,170,120),
-ThemeTag={Font="Font.Medium"}
+ThemeTag={TextColor3="Colors.Text.Dark",Font="Font.Bold"}
 })
 
--- Hàng tab NGANG ở dưới header
-local af=E("ScrollingFrame","TabsScroll",leftPanel,{
-AutomaticCanvasSize=Enum.AutomaticSize.X,
-ScrollingDirection=Enum.ScrollingDirection.X,
-Position=UDim2.new(0,0,0,64),
-Size=UDim2.new(1,0,0,40),
-ScrollBarThickness=2,
-BackgroundTransparency=1,
-ScrollBarImageTransparency=0.2,
-CanvasSize=UDim2.new(),
-BorderSizePixel=0,
-ThemeTag={ScrollBarImageColor3="Colors.ScrollBar"},
+-- Pill trạng thái: chấm + FPS + giờ
+local statusPill=E("Frame","Status",header,{
+Size=UDim2.new(0,96,0,30),
+Position=UDim2.new(1,-12,0.5,0),
+AnchorPoint=Vector2.new(1,0.5),
+BackgroundTransparency=0.35,
+ThemeTag={BackgroundColor3="Colors.Buttons.Default"},
 Elements={
-Padding={PaddingLeft=UDim.new(0,12),PaddingRight=UDim.new(0,12),PaddingTop=UDim.new(0,5),PaddingBottom=UDim.new(0,5)},
-ListLayout={
-Padding=UDim.new(0,8),
-FillDirection=Enum.FillDirection.Horizontal,
-VerticalAlignment=Enum.VerticalAlignment.Center,
-SortOrder=Enum.SortOrder.LayoutOrder
-}
+Corner=UDim.new(0,9),
+Stroke={Color=Color3.fromRGB(55,55,55),Thickness=1,Transparency=0.45}
 }
 })
 
--- Thanh chỉ báo tab đang chọn (trượt mượt)
-local indicator=E("Frame","TabIndicator",leftPanel,{
-Size=UDim2.new(0,60,0,2),
-Position=UDim2.new(0,12,0,98),
-BackgroundColor3=Color3.fromRGB(255,255,255),
-BorderSizePixel=0,
-BackgroundTransparency=0.05
+local dot=E("Frame","Dot",statusPill,{
+Size=UDim2.new(0,7,0,7),
+Position=UDim2.new(0,9,0.5,0),
+AnchorPoint=Vector2.new(0,0.5),
+BackgroundColor3=Color3.fromRGB(60,220,120),
+Elements={Corner=UDim.new(0.5,0)}
 })
-E("UICorner",{CornerRadius=UDim.new(1,0)}).Parent=indicator
-local indGrad=E("UIGradient",{
-Color=ColorSequence.new{
-ColorSequenceKeypoint.new(0,Color3.fromRGB(255,90,90)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(140,110,255))
-}
-})
-indGrad.Parent=indicator
 
-local function moveIndicator(btn)
-if not btn or not btn.Parent then return end
-local x=btn.AbsolutePosition.X-af.AbsolutePosition.X
-j:Create(indicator,TweenInfo.new(0.25,Enum.EasingStyle.Quart,Enum.EasingDirection.Out),{
-Position=UDim2.new(0,x+8,0,98),
-Size=UDim2.new(0,btn.AbsoluteSize.X-16,0,2)
-}):Play()
-end
-
--- Nút tab: kích thước + hiệu ứng hover
-local function styleTabButton(btn)
-btn.Size=UDim2.fromOffset(124,30)
-btn.AutomaticSize=Enum.AutomaticSize.None
-if not btn:FindFirstChild("HoverFx") then
-local fx=E("Frame","HoverFx",btn,{
-Size=UDim2.new(1,0,1,0),
-BackgroundColor3=Color3.fromRGB(255,255,255),
+local fpsLabel=E("TextLabel","FPS",statusPill,{
+Size=UDim2.new(1,-26,0,13),
+Position=UDim2.new(0,22,0,3),
 BackgroundTransparency=1,
-BorderSizePixel=0,
-ZIndex=0
+Text="-- FPS",
+TextSize=11,
+TextXAlignment=Enum.TextXAlignment.Left,
+ThemeTag={TextColor3="Colors.Text.Default",Font="Font.Bold"}
 })
-E("UICorner",{CornerRadius=UDim.new(0,8)}).Parent=fx
-u(btn.MouseEnter,function()
-j:Create(fx,TweenInfo.new(0.18),{BackgroundTransparency=0.9}):Play()
-end)
-u(btn.MouseLeave,function()
-j:Create(fx,TweenInfo.new(0.18),{BackgroundTransparency=1}):Play()
-end)
-u(btn.MouseButton1Click,function() moveIndicator(btn) end)
-end
-end
 
-leftPanel.ChildAdded:Connect(function(child)
-if child:IsA("TextButton") then
-task.defer(function()
-child.Parent=af
-styleTabButton(child)
-if #af:GetChildren()<=3 then moveIndicator(child) end
-end)
-end
-end)
+local clockLabel=E("TextLabel","Clock",statusPill,{
+Size=UDim2.new(1,-26,0,11),
+Position=UDim2.new(0,22,0,15),
+BackgroundTransparency=1,
+Text="--:--",
+TextSize=9,
+TextXAlignment=Enum.TextXAlignment.Left,
+ThemeTag={TextColor3="Colors.Text.Darker",Font="Font.Normal"}
+})
 
-af.ChildAdded:Connect(function(child)
-if child:IsA("TextButton") then
-task.defer(function() styleTabButton(child) end)
-end
-end)
+-- Vạch gradient ngăn cách header
+local accent=E("Frame","Accent",header,{
+Size=UDim2.new(1,-24,0,1),
+Position=UDim2.new(0,12,1,-1),
+BackgroundColor3=Color3.fromRGB(255,255,255),
+BackgroundTransparency=0.85,
+BorderSizePixel=0
+})
 
--- Đồng hồ + FPS trực tiếp
-task.spawn(function()
-local acc,frames=0,0
-while leftPanel.Parent do
-local dt=n:Wait()
-acc=acc+dt
-frames=frames+1
-if acc>=0.5 then
-local fps=math.floor(frames/acc+0.5)
-local t=os.date("*t")
-statusText.Text=string.format("online · %d fps · %02d:%02d",fps,t.hour,t.min)
-statusDot.BackgroundColor3=fps>=45 and Color3.fromRGB(80,230,140) or (fps>=25 and Color3.fromRGB(240,200,90) or Color3.fromRGB(240,90,90))
-acc,frames=0,0
-end
-end
-end)
+E("UIGradient",accent,{
+Transparency=NumberSequence.new{
+NumberSequenceKeypoint.new(0,1),
+NumberSequenceKeypoint.new(0.5,0),
+NumberSequenceKeypoint.new(1,1)
+}
+})
 
--- Hiệu ứng xoay vòng sáng logo + nhịp thở của viền search
-task.spawn(function()
-local rot=0
-while leftPanel.Parent do
-rot=(rot+2)%360
-ringGrad.Rotation=rot
-brandGrad.Rotation=math.sin(rot/60)*25
-n:Wait()
-end
-end)
-
-u(searchBox.Focused,function()
-j:Create(searchStroke,TweenInfo.new(0.2),{Transparency=0,Color=Color3.fromRGB(255,140,120)}):Play()
-j:Create(searchFrame,TweenInfo.new(0.2),{BackgroundTransparency=0}):Play()
-end)
-u(searchBox.FocusLost,function()
-j:Create(searchStroke,TweenInfo.new(0.2),{Transparency=0.4,Color=Color3.fromRGB(70,70,70)}):Play()
-j:Create(searchFrame,TweenInfo.new(0.2),{BackgroundTransparency=0.15}):Play()
-end)
-
--- Phím tắt "/" để nhảy vào ô tìm kiếm
-u(i.InputBegan,function(input,gp)
-if gp then return end
-if input.KeyCode==Enum.KeyCode.Slash then
-searchBox:CaptureFocus()
-elseif input.KeyCode==Enum.KeyCode.Escape and searchBox.Text~="" then
-searchBox.Text=""
-end
-end)
-
--- (FIX UNIVERSAL SEARCH): Chuyển `ag` lên trên để filterTabs có thể đọc mọi item
-local ag=E("Frame","Containers",{
-Size=ae,
-AnchorPoint=Vector2.new(0,1),
+-- Khu vực nội dung (ContainerHolder)
+local containers=E("Frame","Containers",{
+Size=UDim2.new(1,0,1,-TOP_H),
 Position=UDim2.new(0,0,1,0),
+AnchorPoint=Vector2.new(0,1),
 BackgroundTransparency=1,
 ClipsDescendants=true
 })
 
--- (FIX UNIVERSAL SEARCH): Lọc cả tab và các thành phần (Items) trong Tab
+-- Ép nút tab thành dạng ngang + hiệu ứng hover
+local function styleTabButton(btn)
+if not btn or not btn:IsA("TextButton") then return end
+if btn:GetAttribute("TopTabStyled") then return end
+btn:SetAttribute("TopTabStyled",true)
+btn.AutomaticSize=Enum.AutomaticSize.None
+btn.Size=UDim2.fromOffset(118,24)
+
+-- giu nguyen kich thuoc ngang neu thu vien set lai
+u(btn:GetPropertyChangedSignal"Size",function()
+if btn.Size.X.Scale~=0 or btn.Size.X.Offset~=118 then
+btn.Size=UDim2.fromOffset(118,24)
+end
+end)
+
+u(btn.MouseEnter,function()
+J(btn,"BackgroundTransparency",0.15,0.15):Play()
+end)
+u(btn.MouseLeave,function()
+J(btn,"BackgroundTransparency",0,0.15):Play()
+end)
+end
+
+u(tabsBar.ChildAdded,function(child)
+task.defer(styleTabButton,child)
+end)
+
+for _,child in ipairs(tabsBar:GetChildren()) do
+styleTabButton(child)
+end
+
+-- Tìm kiếm: lọc tab + mọi chức năng bên trong tab
 local function filterTabs(txt)
 txt=txt:lower():gsub("^%s*(.-)%s*$","%1")
-local searching = (txt ~= "")
+local searching=(txt~="")
+local found=0
 
--- 1. Lọc nút Tab
-for _,btn in ipairs(af:GetChildren()) do
+for _,btn in ipairs(tabsBar:GetChildren()) do
 if btn:IsA("TextButton") then
 local title=btn:FindFirstChild("Title")
 if title and title:IsA("TextLabel") then
-local match = title.Text:lower():find(txt,1,true)
-btn.Visible = (not searching) or (match ~= nil)
+local match=title.Text:lower():find(txt,1,true)
+btn.Visible=(not searching) or (match~=nil)
+if searching and match then found=found+1 end
 end
 end
 end
 
--- 2. Lọc tất cả chức năng trong tất cả các Tabs
-local found=0
-for _, container in ipairs(ag:GetChildren()) do
+for _,container in ipairs(containers:GetChildren()) do
 if container:IsA("ScrollingFrame") then
-for _, item in ipairs(container:GetChildren()) do
-if item:IsA("GuiObject") and item.Name == "Option" then
+for _,item in ipairs(container:GetChildren()) do
+if item:IsA("GuiObject") and item.Name=="Option" then
 if not searching then
-item.Visible = true
+item.Visible=true
 else
-local match = false
-for _, desc in ipairs(item:GetDescendants()) do
-if desc:IsA("TextLabel") and desc.Text then
-if desc.Text:lower():find(txt, 1, true) then
-match = true
+local match=false
+for _,desc in ipairs(item:GetDescendants()) do
+if desc:IsA("TextLabel") and desc.Text and desc.Text:lower():find(txt,1,true) then
+match=true
 break
 end
 end
-end
-item.Visible = match
+item.Visible=match
 if match then found=found+1 end
 end
 end
@@ -3985,16 +3894,48 @@ end
 end
 end
 
-if searching then
-resultLabel.Text=tostring(found) .. " kq"
+countLabel.Text=searching and (tostring(found).." kq") or ""
+end
+
+u(searchBox:GetPropertyChangedSignal"Text",function()
+filterTabs(searchBox.Text)
+end)
+
+-- Phím tắt "/" để focus ô tìm kiếm
+u(i.InputBegan,function(input,gameProcessed)
+if gameProcessed then return end
+if input.KeyCode==Enum.KeyCode.Slash and searchBox.Parent then
+task.defer(function()
+searchBox:CaptureFocus()
+end)
+end
+end)
+
+-- FPS + đồng hồ realtime
+do
+local frames=0
+local acc=0
+u(n,function(dt)
+frames=frames+1
+acc=acc+dt
+if acc>=1 then
+local fps=math.floor(frames/acc+0.5)
+frames=0
+acc=0
+fpsLabel.Text=tostring(fps).." FPS"
+if fps>=50 then
+dot.BackgroundColor3=Color3.fromRGB(60,220,120)
+elseif fps>=25 then
+dot.BackgroundColor3=Color3.fromRGB(240,190,60)
 else
-resultLabel.Text=""
+dot.BackgroundColor3=Color3.fromRGB(240,80,80)
 end
+clockLabel.Text=os.date("%H:%M:%S")
+end
+end)
 end
 
-u(searchBox:GetPropertyChangedSignal"Text",function() filterTabs(searchBox.Text) end)
-
-return leftPanel,ag end
+return tabsBar,containers end
 
 
 function s:GetIconByName(ab)
@@ -4264,7 +4205,7 @@ local ak,al=unpack(af.UISize)
 if type(ak)=="number"and type(al)=="number"then
 local am=I.AbsoluteSize
 ak=math.clamp(ak,430,1000)
-al=math.clamp(al,200,500)
+al=math.clamp(al,260,600)
 ah=UDim2.fromOffset(ak,al)
 end
 end
@@ -4408,8 +4349,8 @@ BackgroundColor3="Colors.OnPrimary"
 
 local ax=E("Frame","ControlTabsSize",ak,{
 Visible=false,
-Size=UDim2.new(0,16,0.75,-30),
-Position=UDim2.new(0,160,0.5,15),
+Size=UDim2.new(0,0,0,0),
+Position=UDim2.new(0,0,0.5,15),
 AnchorPoint=Vector2.new(0.5,0.5),
 BackgroundTransparency=1,
 Active=true,
@@ -4441,15 +4382,13 @@ ak.Size=az
 af.UISize={az.X.Offset,az.Y.Offset}
 end)
 
--- ControlTabsSize đã tắt: tab nằm ngang ở trên nên không cần chỉnh chiều rộng
+-- Tab nam ngang o tren: khong con chinh chieu rong tab
 
 D.Draggable(aw,ad,0.68,function(az,aA,aB,aC)
-return UDim2.fromOffset(math.clamp(aA,430,1000),math.clamp(aC,200,500))
+return UDim2.fromOffset(math.clamp(aA,430,1000),math.clamp(aC,260,600))
 end)
 
-D.Draggable(ax,ad,0.68,function(aA,aB)
-return UDim2.new(0,math.clamp(aB,135,210),0.5,15)
-end)
+-- (bo drag ControlTabsSize)
 
 local aA={
 Title="Close Window?",
