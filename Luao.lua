@@ -1,3 +1,5 @@
+-- Fixed version of redz-library-v5
+-- Cleaned: removed line numbers, added missing spaces
 
 local a=cloneref or (function(...) return...end)
 
@@ -35,12 +37,13 @@ Darker={
 Colors={
 Background=ColorSequence.new{
 ColorSequenceKeypoint.new(0.00,Color3.fromRGB(0,0,0)),
-ColorSequenceKeypoint.new(1.00,Color3.fromRGB(10,10,10))
+ColorSequenceKeypoint.new(0.50,Color3.fromRGB(8,8,8)),
+ColorSequenceKeypoint.new(1.00,Color3.fromRGB(0,0,0))
 },
 Primary=Color3.fromRGB(88,101,242),
-OnPrimary=Color3.fromRGB(20,20,20),
-ScrollBar=Color3.fromRGB(30,30,30),
-Stroke=Color3.fromRGB(35,35,35),
+OnPrimary=Color3.fromRGB(61,67,135),
+ScrollBar=Color3.fromRGB(1,76,105),
+Stroke=Color3.fromRGB(45,45,45),
 
 Error=Color3.fromRGB(255,102,102),
 Icons=Color3.fromRGB(232,233,235),
@@ -49,15 +52,15 @@ JoinButton=Color3.fromRGB(37,128,69),
 Link=Color3.fromRGB(40,150,255),
 
 Dialog={
-Background=Color3.fromRGB(5,5,5)
+Background=Color3.fromRGB(10,10,10)
 },
 Buttons={
-Holding=Color3.fromRGB(20,20,20),
-Default=Color3.fromRGB(10,10,10)
+Holding=Color3.fromRGB(30,30,30),
+Default=Color3.fromRGB(15,15,15)
 },
 Border={
-Holding=Color3.fromRGB(50,50,50),
-Default=Color3.fromRGB(30,30,30),
+Holding=Color3.fromRGB(60,60,60),
+Default=Color3.fromRGB(38,38,38),
 },
 Text={
 Default=Color3.fromRGB(255,255,255),
@@ -65,11 +68,11 @@ Dark=Color3.fromRGB(200,200,200),
 Darker=Color3.fromRGB(175,175,175),
 },
 Slider={
-SliderBar=Color3.fromRGB(255,255,255),
+SliderBar=Color3.fromRGB(1,76,105),
 SliderNumber=Color3.fromRGB(232,233,235),
 },
 Dropdown={
-Holder=Color3.fromRGB(10,10,10),
+Holder=Color3.fromRGB(12,12,12),
 }
 },
 Icons={
@@ -91,7 +94,7 @@ Bold=Enum.Font.BuilderSansBold,
 ExtraBold=Enum.Font.BuilderSansExtraBold,
 SliderValue=Enum.Font.FredokaOne
 },
-BackgroundTransparency=0.2 -- ĐEN TUYỀN XUYÊN THẤU 0 = đục, 0.5 = trong
+BackgroundTransparency=0.5 -- NỀN ĐEN XUYÊN QUA
 }
 }
 
@@ -946,8 +949,8 @@ Padding=UDim.new(0,5)
 })
 
 local ar=E("ImageLabel",ao,{
-Position=UDim2.new(0,6,0.5),
-Size=UDim2.new(0,20,0,20),
+Position=UDim2.new(0,8,0.5),
+Size=UDim2.new(0,13,0,13),
 AnchorPoint=Vector2.new(0,0.5),
 BackgroundTransparency=1,
 ImageTransparency=0.3,
@@ -958,8 +961,8 @@ Image=am.Icon or""
 local as=string.sub(ar.Image,1,13)=="rbxassetid://"
 local at=ao.Title
 ar.Visible=as
-at.Size=UDim2.new(1,as and-32 or-15,1)
-at.Position=UDim2.fromOffset(as and 32 or 15) end
+at.Size=UDim2.new(1,as and-25 or-15,1)
+at.Position=UDim2.fromOffset(as and 25 or 15) end
 
 
 u(ar:GetPropertyChangedSignal"Image",as)
@@ -3623,41 +3626,34 @@ local aa=function(
 
 aa, ab)
 local ac=ab.Size.Y.Offset
-local ad=UDim2.new(0,aa.TabSize or s.Default.TabSize,1,-ac)
-local ae=UDim2.new(1,-ad.X.Offset,1,-ac)
+local TAB_BAR_HEIGHT=72
+local ad=UDim2.new(1,0,0,TAB_BAR_HEIGHT)
+local ae=UDim2.new(1,0,1,-(ac+TAB_BAR_HEIGHT))
 
--- [BANANA SEARCH] Panel trái chứa logo + search + tabs (không đổi vị trí tab)
+-- [TAB TRÊN] Panel trên chứa logo + search + hàng tab ngang
 local leftPanel=E("Frame","LeftPanel",{
 Size=ad,
-Position=UDim2.new(0,0,1,0),
-AnchorPoint=Vector2.new(0,1),
+Position=UDim2.new(0,0,0,ac),
+AnchorPoint=Vector2.new(0,0),
 BackgroundTransparency=1,
-ClipsDescendants=true -- FIX BÊN TRONG PANEL TRÁI
+ClipsDescendants=true
 })
 
--- Logo con rồng - ĐÃ TĂNG SIZE TO VỪA MẮT
+-- Logo nhỏ bên trái
 local logo=E("ImageLabel","Logo",leftPanel,{
-Size=UDim2.new(0,95,0,95),
-Position=UDim2.new(0.5,0,0,10),
-AnchorPoint=Vector2.new(0.5,0),
+Size=UDim2.new(0,28,0,28),
+Position=UDim2.new(0,10,0,5),
 BackgroundTransparency=1,
 Image="rbxassetid://109680810107601",
 ScaleType=Enum.ScaleType.Fit
 })
-E("UICorner",{CornerRadius=UDim.new(0,14)}).Parent=logo
--- Thêm viền sáng nhẹ cho nổi
-local logoStroke=E("UIStroke",logo,{
-Color=Color3.fromRGB(80,80,80),
-Thickness=1.5,
-Transparency=0.4
-})
-logoStroke.Parent=logo
+E("UICorner",{CornerRadius=UDim.new(0,6)}).Parent=logo
 
--- Search bar
+-- Search bar nằm cạnh logo
 local searchFrame=E("Frame","SearchFrame",leftPanel,{
-Size=UDim2.new(1,-20,0,28),
-Position=UDim2.new(0,10,0,112),
-BackgroundTransparency=0,
+Size=UDim2.new(0,200,0,24),
+Position=UDim2.new(0,46,0,7),
+BackgroundTransparency=0.25,
 ThemeTag={BackgroundColor3="Colors.Buttons.Default"}
 })
 E("UICorner",{CornerRadius=UDim.new(0,6)}).Parent=searchFrame
@@ -3685,36 +3681,55 @@ ImageTransparency=0.2,
 ThemeTag={ImageColor3="Colors.Icons"}
 })
 
--- TabsScroll gốc
+-- Hàng tab NGANG ở trên
 local af=E("ScrollingFrame","TabsScroll",leftPanel,{
-AutomaticCanvasSize=Enum.AutomaticSize.Y,
-ScrollingDirection=Enum.ScrollingDirection.Y,
-Position=UDim2.new(0,0,0,150),
-Size=UDim2.new(1,0,1,-150),
-ScrollBarThickness=2.2,
+AutomaticCanvasSize=Enum.AutomaticSize.X,
+ScrollingDirection=Enum.ScrollingDirection.X,
+Position=UDim2.new(0,0,0,38),
+Size=UDim2.new(1,0,0,34),
+ScrollBarThickness=2,
 BackgroundTransparency=1,
 ScrollBarImageTransparency=0.2,
 CanvasSize=UDim2.new(),
 BorderSizePixel=0,
 ThemeTag={ScrollBarImageColor3="Colors.ScrollBar"},
 Elements={
-Padding={PaddingLeft=UDim.new(0,10),PaddingRight=UDim.new(0,10),PaddingTop=UDim.new(0,5),PaddingBottom=UDim.new(0,10)},
-ListLayout={Padding=UDim.new(0,5)}
+Padding={PaddingLeft=UDim.new(0,10),PaddingRight=UDim.new(0,10),PaddingTop=UDim.new(0,4),PaddingBottom=UDim.new(0,4)},
+ListLayout={
+Padding=UDim.new(0,6),
+FillDirection=Enum.FillDirection.Horizontal,
+VerticalAlignment=Enum.VerticalAlignment.Center,
+SortOrder=Enum.SortOrder.LayoutOrder
+}
 }
 })
 
--- Tự động chuyển tab mới vào đúng ScrollingFrame (giữ nguyên vị trí)
+-- Nút tab mới -> đưa vào hàng ngang và ép kích thước ngang
+local function styleTabButton(btn)
+btn.Size=UDim2.fromOffset(112,26)
+btn.AutomaticSize=Enum.AutomaticSize.None
+end
+
 leftPanel.ChildAdded:Connect(function(child)
 if child:IsA("TextButton") then
-task.defer(function() child.Parent = af end)
+task.defer(function()
+child.Parent=af
+styleTabButton(child)
+end)
+end
+end)
+
+af.ChildAdded:Connect(function(child)
+if child:IsA("TextButton") then
+task.defer(function() styleTabButton(child) end)
 end
 end)
 
 -- (FIX UNIVERSAL SEARCH): Chuyển `ag` lên trên để filterTabs có thể đọc mọi item
 local ag=E("Frame","Containers",{
 Size=ae,
-AnchorPoint=Vector2.new(1,1),
-Position=UDim2.new(1,0,1,0),
+AnchorPoint=Vector2.new(0,1),
+Position=UDim2.new(0,0,1,0),
 BackgroundTransparency=1,
 ClipsDescendants=true
 })
@@ -4065,90 +4080,7 @@ self:Destroy()
 ak:Destroy()
 end)
 
-
 D.Draggable(ak,ad,0.5)
-
--- [ANIMATION] FIXED VIP - SCALE ONLY (KHÔNG ĐẨY NỘI DUNG)
-do
-    local targetSize = ah
-    local targetPos = UDim2.new(0.5,-targetSize.X.Offset/2,0.5,-targetSize.Y.Offset/2)
-    
-    -- GIỮ NGUYÊN SIZE VÀ POS - chỉ scale
-    ak.Size = targetSize
-    ak.Position = targetPos
-    ak.Rotation = -8
-    ak.ClipsDescendants = false -- TẠM TẮT để không cắt khi scale
-    local originalTransparency = s.Themes[s.Default.Theme].BackgroundTransparency or 0.2
-    ak.BackgroundTransparency = originalTransparency
-    ad.Scale = 0
-    
-    -- Glow viền
-    local glowStroke = E("UIStroke","OpenGlow",ak,{
-        Color=Color3.fromRGB(130,150,255),
-        Thickness=3,
-        Transparency=1,
-        ApplyStrokeMode=Enum.ApplyStrokeMode.Border
-    })
-    
-    -- Shadow phát sáng - giữ nguyên vị trí
-    local shadowFX = E("Frame","ShadowFX",I,{
-        Size=targetSize,
-        Position=targetPos,
-        BackgroundColor3=Color3.fromRGB(88,101,242),
-        BackgroundTransparency=1,
-        ZIndex=0,
-        Elements={Corner=UDim.new(0,16)}
-    })
-    
-    task.spawn(function()
-        -- Phase 1: Glow nhẹ
-        j:Create(glowStroke, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            Transparency=0.25
-        }):Play()
-        j:Create(shadowFX, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            BackgroundTransparency=0.65
-        }):Play()
-        
-        task.wait(0.05)
-        
-        -- Phase 2: POP SCALE - CHỈ SCALE, KHÔNG ĐỔI SIZE
-        local tweenScale = j:Create(ad, TweenInfo.new(0.65, Enum.EasingStyle.Back, Enum.EasingDirection.Out, 0, false, 0), {
-            Scale=P(1)
-        })
-        local tweenRot = j:Create(ak, TweenInfo.new(0.65, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-            Rotation=0
-        })
-        tweenScale:Play()
-        tweenRot:Play()
-        
-        -- Gradient chạy
-        if ak:FindFirstChildOfClass("UIGradient") then
-            local grad = ak:FindFirstChildOfClass("UIGradient")
-            grad.Offset = Vector2.new(-0.5,0)
-            j:Create(grad, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                Offset=Vector2.new(0,0)
-            }):Play()
-        end
-        
-        tweenScale.Completed:Wait()
-        
-        -- Phase 3: Tắt glow
-        ak.ClipsDescendants = true -- Bật lại clip sau khi xong
-        j:Create(glowStroke, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            Transparency=1,
-            Thickness=6
-        }):Play()
-        j:Create(shadowFX, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            BackgroundTransparency=1
-        }):Play()
-        
-        task.delay(0.5, function()
-            if glowStroke then glowStroke:Destroy() end
-            if shadowFX then shadowFX:Destroy() end
-        end)
-    end)
-end
-
 
 local al=E("Folder","Components",ak)
 local am=E("Folder","Dropdowns",I)
@@ -4258,8 +4190,9 @@ BackgroundColor3="Colors.OnPrimary"
 })
 
 local ax=E("Frame","ControlTabsSize",ak,{
+Visible=false,
 Size=UDim2.new(0,16,0.75,-30),
-Position=UDim2.new(0,at.Size.X.Offset,0.5,15),
+Position=UDim2.new(0,160,0.5,15),
 AnchorPoint=Vector2.new(0.5,0.5),
 BackgroundTransparency=1,
 Active=true,
@@ -4291,13 +4224,7 @@ ak.Size=az
 af.UISize={az.X.Offset,az.Y.Offset}
 end)
 
-u(ax:GetPropertyChangedSignal"Position",function()
-ay(ax)
-local az=ax.Position
-at.Size=UDim2.new(0,az.X.Offset,1,-an.Size.Y.Offset)
-au.Size=UDim2.new(1,-at.Size.X.Offset,1,-an.Size.Y.Offset)
-af.TabSize=az.X.Offset
-end)
+-- ControlTabsSize đã tắt: tab nằm ngang ở trên nên không cần chỉnh chiều rộng
 
 D.Draggable(aw,ad,0.68,function(az,aA,aB,aC)
 return UDim2.fromOffset(math.clamp(aA,430,1000),math.clamp(aC,200,500))
