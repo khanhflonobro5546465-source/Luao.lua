@@ -670,11 +670,68 @@ function Library:Window(Args)
         CornerRadius = UDim.new(0, 5)
     })
 
-    Library:Create("UIStroke", {
+    local IntroStroke = Library:Create("UIStroke", {
         Parent = IntroBanner,
         Color = Color3.fromRGB(40, 40, 40),
         Thickness = 1
     })
+
+    -- 3 cham mau (xanh / vang / do) o goc duoi banner
+    local Dots = Library:Create("Frame", {
+        Name = "Dots",
+        Parent = IntroBanner,
+        AnchorPoint = Vector2.new(0, 1),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Position = UDim2.new(0, 12, 1, -10),
+        Size = UDim2.new(0, 46, 0, 10)
+    })
+
+    Library:Create("UIListLayout", {
+        Parent = Dots,
+        Padding = UDim.new(0, 6),
+        FillDirection = Enum.FillDirection.Horizontal,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        VerticalAlignment = Enum.VerticalAlignment.Center
+    })
+
+    local DotList = {}
+    for i, color in ipairs({
+        Color3.fromRGB(46, 204, 113),
+        Color3.fromRGB(241, 196, 15),
+        Color3.fromRGB(231, 76, 60)
+    }) do
+        local Dot = Library:Create("Frame", {
+            Name = "Dot" .. i,
+            Parent = Dots,
+            BackgroundColor3 = color,
+            BackgroundTransparency = 1,
+            BorderSizePixel = 0,
+            LayoutOrder = i,
+            Size = UDim2.new(0, 10, 0, 10)
+        })
+
+        Library:Create("UICorner", {
+            Parent = Dot,
+            CornerRadius = UDim.new(1, 0)
+        })
+
+        table.insert(DotList, Dot)
+    end
+
+    -- Trang thai ban dau cho hieu ung intro
+    local IntroScale = Library:Create("UIScale", {
+        Parent = IntroBanner,
+        Scale = 0.9
+    })
+
+    IntroBanner.ImageTransparency = 1
+    IntroBanner.BackgroundTransparency = 1
+    IntroStroke.Transparency = 1
+
+    Library._IntroTabs = {}
+
+
 
 
 
@@ -711,23 +768,16 @@ function Library:Window(Args)
             Thickness = 1
         })
 
-        local Banner_1 = Library:Create("ImageLabel", {
-            Name = "Banner",
+        -- Da bo anh banner trong tung tab (chi hien o dau Menu)
+
+        local TabScale = Library:Create("UIScale", {
             Parent = NewTabs,
-            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-            BackgroundTransparency = 1,
-            BorderColor3 = Color3.fromRGB(0, 0, 0),
-            BorderSizePixel = 0,
-            Size = UDim2.new(1, 0, 1, 0),
-            Image = "rbxassetid://124737335008624",
-            ImageColor3 = Color3.fromRGB(255, 255, 255),
-            ScaleType = Enum.ScaleType.Crop
+            Scale = 1
         })
 
-        Library:Create("UICorner", {
-            Parent = Banner_1,
-            CornerRadius = UDim.new(0, 2)
-        })
+        table.insert(Library._IntroTabs, { Frame = NewTabs, Scale = TabScale })
+
+
 
         local Info_1 = Library:Create("Frame", {
             Name = "Info",
@@ -2157,6 +2207,48 @@ function Library:Window(Args)
         PageService.TouchInputEnabled = false
         
         Library.PageService = PageService
+
+        -- ===== HIEU UNG INTRO: banner hien truoc, roi menu hien dan =====
+        function Library:PlayIntro()
+            -- an cac tab truoc
+            for _, item in ipairs(Library._IntroTabs) do
+                item.Frame.Visible = false
+                item.Scale.Scale = 0.85
+            end
+
+            IntroScale.Scale = 0.9
+            IntroBanner.ImageTransparency = 1
+            IntroBanner.BackgroundTransparency = 1
+            IntroStroke.Transparency = 1
+            for _, Dot in ipairs(DotList) do
+                Dot.BackgroundTransparency = 1
+            end
+
+            -- 1) Banner xuat hien
+            Library:Tween({ v = IntroBanner, t = 0.5, s = "Exponential", d = "Out", g = { ImageTransparency = 0, BackgroundTransparency = 0 } }):Play()
+            Library:Tween({ v = IntroStroke, t = 0.5, s = "Exponential", d = "Out", g = { Transparency = 0 } }):Play()
+            Library:Tween({ v = IntroScale, t = 0.6, s = "Back", d = "Out", g = { Scale = 1 } }):Play()
+
+            -- 2) 3 cham mau sang dan
+            for i, Dot in ipairs(DotList) do
+                task.delay(0.35 + i * 0.08, function()
+                    Library:Tween({ v = Dot, t = 0.25, s = "Quad", d = "Out", g = { BackgroundTransparency = 0 } }):Play()
+                end)
+            end
+
+            -- 3) Cac tab hien dan tung cai
+            for i, item in ipairs(Library._IntroTabs) do
+                task.delay(0.6 + (i - 1) * 0.07, function()
+                    item.Frame.Visible = true
+                    Library:Tween({ v = item.Scale, t = 0.35, s = "Back", d = "Out", g = { Scale = 1 } }):Play()
+                end)
+            end
+        end
+
+        task.spawn(function()
+            task.wait(0.15)
+            Library:PlayIntro()
+        end)
 
         Scale_1.ClipsDescendants = true
 
