@@ -676,14 +676,14 @@ function Library:Window(Args)
         Thickness = 1
     })
 
-    -- 3 cham mau (xanh / vang / do) o goc duoi banner
+    -- 3 cham mau (xanh / vang / do) o goc duoi phai banner
     local Dots = Library:Create("Frame", {
         Name = "Dots",
         Parent = IntroBanner,
-        AnchorPoint = Vector2.new(0, 1),
+        AnchorPoint = Vector2.new(1, 1),
         BackgroundTransparency = 1,
         BorderSizePixel = 0,
-        Position = UDim2.new(0, 12, 1, -10),
+        Position = UDim2.new(1, -12, 1, -10),
         Size = UDim2.new(0, 46, 0, 10)
     })
 
@@ -2224,23 +2224,23 @@ function Library:Window(Args)
                 Dot.BackgroundTransparency = 1
             end
 
-            -- 1) Banner xuat hien
-            Library:Tween({ v = IntroBanner, t = 0.5, s = "Exponential", d = "Out", g = { ImageTransparency = 0, BackgroundTransparency = 0 } }):Play()
-            Library:Tween({ v = IntroStroke, t = 0.5, s = "Exponential", d = "Out", g = { Transparency = 0 } }):Play()
-            Library:Tween({ v = IntroScale, t = 0.6, s = "Back", d = "Out", g = { Scale = 1 } }):Play()
+            -- 1) Banner xuat hien (cham hon, ~1s)
+            Library:Tween({ v = IntroBanner, t = 1.0, s = "Exponential", d = "Out", g = { ImageTransparency = 0, BackgroundTransparency = 0 } }):Play()
+            Library:Tween({ v = IntroStroke, t = 1.0, s = "Exponential", d = "Out", g = { Transparency = 0 } }):Play()
+            Library:Tween({ v = IntroScale, t = 1.0, s = "Back", d = "Out", g = { Scale = 1 } }):Play()
 
-            -- 2) 3 cham mau sang dan
+            -- 2) 3 cham mau sang dan tu goc phai banner
             for i, Dot in ipairs(DotList) do
-                task.delay(0.35 + i * 0.08, function()
-                    Library:Tween({ v = Dot, t = 0.25, s = "Quad", d = "Out", g = { BackgroundTransparency = 0 } }):Play()
+                task.delay(1.0 + i * 0.15, function()
+                    Library:Tween({ v = Dot, t = 0.3, s = "Quad", d = "Out", g = { BackgroundTransparency = 0 } }):Play()
                 end)
             end
 
-            -- 3) Cac tab hien dan tung cai
+            -- 3) Cac tab hien dan tung cai (bat dau sau ~1.3s)
             for i, item in ipairs(Library._IntroTabs) do
-                task.delay(0.6 + (i - 1) * 0.07, function()
+                task.delay(1.3 + (i - 1) * 0.12, function()
                     item.Frame.Visible = true
-                    Library:Tween({ v = item.Scale, t = 0.35, s = "Back", d = "Out", g = { Scale = 1 } }):Play()
+                    Library:Tween({ v = item.Scale, t = 0.4, s = "Back", d = "Out", g = { Scale = 1 } }):Play()
                 end)
             end
         end
