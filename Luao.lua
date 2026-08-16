@@ -650,6 +650,34 @@ function Library:Window(Args)
         MainTabsScrolling.CanvasSize = UDim2.new(0, 0, 0, UIListLayout_1.AbsoluteContentSize.Y + 15)
     end)
 
+    -- Intro banner shown above the tabs
+    local IntroBanner = Library:Create("ImageLabel", {
+        Name = "IntroBanner",
+        Parent = MainTabsScrolling,
+        BackgroundColor3 = Color3.fromRGB(4, 4, 4),
+        BackgroundTransparency = 0,
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        BorderSizePixel = 0,
+        LayoutOrder = -9999,
+        Size = UDim2.new(1, -2, 0, 120),
+        Image = Library:Asset(Args.Banner or 124737335008624),
+        ImageColor3 = Color3.fromRGB(255, 255, 255),
+        ScaleType = Enum.ScaleType.Crop
+    })
+
+    Library:Create("UICorner", {
+        Parent = IntroBanner,
+        CornerRadius = UDim.new(0, 5)
+    })
+
+    Library:Create("UIStroke", {
+        Parent = IntroBanner,
+        Color = Color3.fromRGB(40, 40, 40),
+        Thickness = 1
+    })
+
+
+
     local PageService: UIPageLayout = Library:Create("UIPageLayout", {
         Parent = Scale_1
     })
