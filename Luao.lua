@@ -2418,9 +2418,9 @@ function Library:Window(Args)
             -- ===== CHINH MENU TO / NHO (keo goc duoi phai) =====
             local ControlWindowSize = Library:Create("Frame", {
                 Name = "ControlWindowSize",
-                Parent = Background_1,
-                AnchorPoint = Vector2.new(1, 1),
-                Position = UDim2.new(1, -2, 1, -2),
+                Parent = Home_1,
+                AnchorPoint = Vector2.new(1, 0),
+                Position = UDim2.new(1, 0, 0, 0),
                 Size = UDim2.new(0, 18, 0, 18),
                 BackgroundColor3 = Color3.fromRGB(120, 120, 120),
                 BackgroundTransparency = 0.85,
