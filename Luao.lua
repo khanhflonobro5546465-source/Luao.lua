@@ -61,59 +61,6 @@ function Library:Draggable(a)
     end)
 end
 
-function Library:Resizable(Handle, Target, Scale, Clamp)
-    -- Keo de chinh Menu to nho (port tu redz-library)
-    local Dragging, DragStart, StartSize = false, nil, nil
-
-    local function GetScale()
-        if typeof(Scale) == "Instance" then
-            return Scale.Scale
-        elseif type(Scale) == "function" then
-            return Scale()
-        end
-        return 1
-    end
-
-    local function Update(input)
-        local s = GetScale()
-        if s <= 0 then s = 1 end
-
-        local Delta = (input.Position - DragStart) / s
-        local X = StartSize.X.Offset + Delta.X
-        local Y = StartSize.Y.Offset + Delta.Y
-
-        if Clamp then
-            X, Y = Clamp(X, Y)
-        end
-
-        Target.Size = UDim2.new(0, math.floor(X), 0, math.floor(Y))
-    end
-
-    Handle.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            Dragging = true
-            DragStart = input.Position
-            StartSize = Target.Size
-
-            TweenService:Create(Handle, TweenInfo.new(0.2), {BackgroundTransparency = 0.35}):Play()
-
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    Dragging = false
-                    TweenService:Create(Handle, TweenInfo.new(0.3), {BackgroundTransparency = 0.85}):Play()
-                end
-            end)
-        end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if not Dragging then return end
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            Update(input)
-        end
-    end)
-end
-
 function Library:Button(Parent): TextButton
     return Library:Create("TextButton", {
         Name = "Click",
@@ -723,11 +670,68 @@ function Library:Window(Args)
         CornerRadius = UDim.new(0, 5)
     })
 
-    Library:Create("UIStroke", {
+    local IntroStroke = Library:Create("UIStroke", {
         Parent = IntroBanner,
         Color = Color3.fromRGB(40, 40, 40),
         Thickness = 1
     })
+
+    -- 3 cham mau (xanh / vang / do) o goc duoi phai banner
+    local Dots = Library:Create("Frame", {
+        Name = "Dots",
+        Parent = IntroBanner,
+        AnchorPoint = Vector2.new(1, 1),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Position = UDim2.new(1, -12, 1, -10),
+        Size = UDim2.new(0, 46, 0, 10)
+    })
+
+    Library:Create("UIListLayout", {
+        Parent = Dots,
+        Padding = UDim.new(0, 6),
+        FillDirection = Enum.FillDirection.Horizontal,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        VerticalAlignment = Enum.VerticalAlignment.Center
+    })
+
+    local DotList = {}
+    for i, color in ipairs({
+        Color3.fromRGB(46, 204, 113),
+        Color3.fromRGB(241, 196, 15),
+        Color3.fromRGB(231, 76, 60)
+    }) do
+        local Dot = Library:Create("Frame", {
+            Name = "Dot" .. i,
+            Parent = Dots,
+            BackgroundColor3 = color,
+            BackgroundTransparency = 1,
+            BorderSizePixel = 0,
+            LayoutOrder = i,
+            Size = UDim2.new(0, 10, 0, 10)
+        })
+
+        Library:Create("UICorner", {
+            Parent = Dot,
+            CornerRadius = UDim.new(1, 0)
+        })
+
+        table.insert(DotList, Dot)
+    end
+
+    -- Trang thai ban dau cho hieu ung intro
+    local IntroScale = Library:Create("UIScale", {
+        Parent = IntroBanner,
+        Scale = 0.9
+    })
+
+    IntroBanner.ImageTransparency = 1
+    IntroBanner.BackgroundTransparency = 1
+    IntroStroke.Transparency = 1
+
+    Library._IntroTabs = {}
+
+
 
 
 
@@ -764,23 +768,16 @@ function Library:Window(Args)
             Thickness = 1
         })
 
-        local Banner_1 = Library:Create("ImageLabel", {
-            Name = "Banner",
+        -- Da bo anh banner trong tung tab (chi hien o dau Menu)
+
+        local TabScale = Library:Create("UIScale", {
             Parent = NewTabs,
-            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-            BackgroundTransparency = 1,
-            BorderColor3 = Color3.fromRGB(0, 0, 0),
-            BorderSizePixel = 0,
-            Size = UDim2.new(1, 0, 1, 0),
-            Image = "rbxassetid://124737335008624",
-            ImageColor3 = Color3.fromRGB(255, 255, 255),
-            ScaleType = Enum.ScaleType.Crop
+            Scale = 1
         })
 
-        Library:Create("UICorner", {
-            Parent = Banner_1,
-            CornerRadius = UDim.new(0, 2)
-        })
+        table.insert(Library._IntroTabs, { Frame = NewTabs, Scale = TabScale })
+
+
 
         local Info_1 = Library:Create("Frame", {
             Name = "Info",
@@ -1573,13 +1570,9 @@ function Library:Window(Args)
         end
         
         function Page:Input(Args)
-            Args = Args or {}
-
-            local Value = Args.Value or Args.Default or ""
+            local Value = Args.Value or ""
             local Callback = Args.Callback or function() end
-            local Placeholder = Args.Placeholder or Args.PlaceholderText or "Paste your text input here."
-            local ClearOnFocus = Args.ClearOnFocus or Args.ClearTextOnFocus or false
-
+            
             local Input_1 = Library:Create("Frame", {
                 Name = "Input",
                 Parent = PageScrolling_1,
@@ -1628,14 +1621,11 @@ function Library:Window(Args)
                 Size = UDim2.new(1, -20, 1, 0),
                 Font = Enum.Font.GothamMedium,
                 PlaceholderColor3 = Color3.fromRGB(55, 55, 55),
-                PlaceholderText = Placeholder,
+                PlaceholderText = "Paste your text input here.",
                 Text = tostring(Value),
                 TextColor3 = Color3.fromRGB(100, 100, 100),
                 TextSize = 11,
-                TextXAlignment = Enum.TextXAlignment.Left,
-                ClearTextOnFocus = ClearOnFocus,
-                TextTruncate = Enum.TextTruncate.AtEnd,
-                Active = true
+                TextXAlignment = Enum.TextXAlignment.Left
             })
 
             local Enter_1 = Library:Create("Frame", {
@@ -1675,122 +1665,33 @@ function Library:Window(Args)
 
             local Copy = Library:Button(Enter_1)
 
-            local Object = {}
-
-            local Submitting = false
-
-            local function Fire(Text)
-                -- Chay callback an toan: khong bao gio lam vo UI khi webhook loi
-                task.spawn(function()
-                    local ok, err = pcall(Callback, Text)
-                    if not ok then
-                        warn("[Input] Callback error: " .. tostring(err))
-                    end
-                end)
-            end
-
             local function Submit()
-                if Submitting then return end
-
-                local Text = TextBox_1.Text
-
-                if Object.Filter then
-                    local ok, filtered = pcall(Object.Filter, Text)
-                    if ok and type(filtered) == "string" then
-                        Text = filtered
-                        TextBox_1.Text = filtered
-                    end
+                if TextBox_1.Text ~= "" then
+                    Callback(TextBox_1.Text)
                 end
-
-                if Text == "" then return end
-
-                Submitting = true
-                Value = Text
-
-                Fire(Text)
-
-                -- Phan hoi truc quan khi gui thanh cong
-                Asset.Image = "rbxassetid://121742282171603"
-                task.delay(1.5, function()
-                    Asset.Image = "rbxassetid://78020815235467"
-                end)
-
-                task.delay(0.2, function()
-                    Submitting = false
-                end)
             end
-
-            TextBox_1.Focused:Connect(function()
-                Library.InputFocused = true
-            end)
 
             TextBox_1.FocusLost:Connect(function(enterPressed)
-                Library.InputFocused = false
-                Value = TextBox_1.Text
-
                 if enterPressed then
                     Submit()
                 end
             end)
 
-            -- Bam nut Enter (icon) = gui luon, khong copy nham nua
             Copy.MouseButton1Click:Connect(function()
                 if Library:IsDropdownOpen() then return end
-                Submit()
+                
+                pcall(setclipboard, Value)
+                
+                Asset.Image = "rbxassetid://121742282171603"
+                
+                delay(3, function()
+                    Asset.Image = "rbxassetid://78020815235467"
+                end)
             end)
-
-            -- Giu lau nut Enter = copy noi dung hien tai
-            do
-                local Holding = false
-
-                Copy.MouseButton1Down:Connect(function()
-                    Holding = true
-                    task.delay(0.6, function()
-                        if Holding then
-                            pcall(setclipboard, TextBox_1.Text)
-                        end
-                    end)
-                end)
-
-                Copy.MouseButton1Up:Connect(function()
-                    Holding = false
-                end)
-
-                Copy.MouseLeave:Connect(function()
-                    Holding = false
-                end)
-            end
-
-            function Object:Get()
-                return TextBox_1.Text
-            end
-
-            function Object:Set(NewValue)
-                TextBox_1.Text = tostring(NewValue or "")
-                Value = TextBox_1.Text
-            end
-
-            function Object:Submit()
-                Submit()
-            end
-
-            Object.TextBox = TextBox_1
-            Object.Frame = Input_1
-
-            return setmetatable(Object, {
-                __index = TextBox_1,
-                __newindex = function(t, k, v)
-                    local ok = pcall(function()
-                        TextBox_1[k] = v
-                    end)
-                    if not ok then
-                        rawset(t, k, v)
-                    end
-                end
-            })
+            
+            return TextBox_1
         end
-
-
+        
         function Page:Dropdown(Args)
             local Title = Args.Title
             local List = Args.List
@@ -2307,6 +2208,48 @@ function Library:Window(Args)
         
         Library.PageService = PageService
 
+        -- ===== HIEU UNG INTRO: banner hien truoc, roi menu hien dan =====
+        function Library:PlayIntro()
+            -- an cac tab truoc
+            for _, item in ipairs(Library._IntroTabs) do
+                item.Frame.Visible = false
+                item.Scale.Scale = 0.85
+            end
+
+            IntroScale.Scale = 0.9
+            IntroBanner.ImageTransparency = 1
+            IntroBanner.BackgroundTransparency = 1
+            IntroStroke.Transparency = 1
+            for _, Dot in ipairs(DotList) do
+                Dot.BackgroundTransparency = 1
+            end
+
+            -- 1) Banner xuat hien (cham hon, ~1s)
+            Library:Tween({ v = IntroBanner, t = 1.0, s = "Exponential", d = "Out", g = { ImageTransparency = 0, BackgroundTransparency = 0 } }):Play()
+            Library:Tween({ v = IntroStroke, t = 1.0, s = "Exponential", d = "Out", g = { Transparency = 0 } }):Play()
+            Library:Tween({ v = IntroScale, t = 1.0, s = "Back", d = "Out", g = { Scale = 1 } }):Play()
+
+            -- 2) 3 cham mau sang dan tu goc phai banner
+            for i, Dot in ipairs(DotList) do
+                task.delay(1.0 + i * 0.15, function()
+                    Library:Tween({ v = Dot, t = 0.3, s = "Quad", d = "Out", g = { BackgroundTransparency = 0 } }):Play()
+                end)
+            end
+
+            -- 3) Cac tab hien dan tung cai (bat dau sau ~1.3s)
+            for i, item in ipairs(Library._IntroTabs) do
+                task.delay(1.3 + (i - 1) * 0.12, function()
+                    item.Frame.Visible = true
+                    Library:Tween({ v = item.Scale, t = 0.4, s = "Back", d = "Out", g = { Scale = 1 } }):Play()
+                end)
+            end
+        end
+
+        task.spawn(function()
+            task.wait(0.15)
+            Library:PlayIntro()
+        end)
+
         Scale_1.ClipsDescendants = true
 
         local Return_Button = Library:Button(Return_1)
@@ -2414,51 +2357,6 @@ function Library:Window(Args)
             function Library:SetTimeValue(Value)
                 THETIME.Text = Value
             end
-
-            -- ===== CHINH MENU TO / NHO (keo goc duoi phai) =====
-            local ControlWindowSize = Library:Create("Frame", {
-                Name = "ControlWindowSize",
-                Parent = Home_1,
-                AnchorPoint = Vector2.new(1, 0),
-                Position = UDim2.new(1, 0, 0, 0),
-                Size = UDim2.new(0, 18, 0, 18),
-                BackgroundColor3 = Color3.fromRGB(120, 120, 120),
-                BackgroundTransparency = 0.85,
-                BorderSizePixel = 0,
-                Active = true,
-                ZIndex = 50
-            })
-
-            Library:Create("UICorner", {
-                Parent = ControlWindowSize,
-                CornerRadius = UDim.new(0, 4)
-            })
-
-            Library:Create("ImageLabel", {
-                Parent = ControlWindowSize,
-                AnchorPoint = Vector2.new(0.5, 0.5),
-                Position = UDim2.new(0.5, 0, 0.5, 0),
-                Size = UDim2.new(0, 10, 0, 10),
-                BackgroundTransparency = 1,
-                Image = "rbxassetid://10734886735",
-                ImageColor3 = Color3.fromRGB(160, 160, 160),
-                ImageTransparency = 0.3,
-                ZIndex = 51
-            })
-
-            Library:Resizable(ControlWindowSize, Background_1, Scaler, function(X, Y)
-                return math.clamp(X, 430, 1000), math.clamp(Y, 250, 600)
-            end)
-
-            function Library:SetWindowSize(X, Y)
-                Background_1.Size = UDim2.new(0, math.clamp(X, 430, 1000), 0, math.clamp(Y, 250, 600))
-            end
-
-            function Library:GetWindowSize()
-                return Background_1.Size.X.Offset, Background_1.Size.Y.Offset
-            end
-
-            Background_1.ClipsDescendants = true
         end
 
         Return_Button.MouseButton1Click:Connect(OnReturn)
