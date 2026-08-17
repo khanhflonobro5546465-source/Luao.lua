@@ -605,6 +605,7 @@ ai.__index=ai
 
 local aj={}
 aj.__index=aj
+s.__WindowClass=ag s.__TabClass=ah s.__ElementClass=ai s.__MinimizerClass=aj
 
 local ak={} do local al=function()
 
@@ -4236,6 +4237,10 @@ end
 -- Section / Paragraph / Toggle / Button / Slider / Input / Dropdown)
 -- Section KHONG dung AddSection nua (da xoa), Section = code AddParagraph
 -- =====================================================================
+
+local ag=s.__WindowClass
+local ah=s.__TabClass
+local ai=s.__ElementClass
 
 local function __asIcon(v)
 if v == nil then return nil end
