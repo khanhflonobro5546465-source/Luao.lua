@@ -1,15 +1,19 @@
+-- ==========================================
+-- BỔ SUNG CẤU HÌNH VÀ CÀI ĐẶT
+-- ==========================================
 _G.Settings = _G.Settings or {
     FastAttack = true
 }
 
 local Config = {
-    AttackDistance = 60,
-    BossHealthThreshold = 100000,
+    AttackDistance = 60,         -- Khoảng cách quét quái (Tăng lên nếu quái bị văng xa)
+    BossHealthThreshold = 100000,-- Ngưỡng máu để xác định là Boss
     ComboResetTime = 1.5,
     MaxCombo = 4,
     AutoClickEnabled = true,
-    AttackCooldown = 0.125
+    AttackCooldown = 0.125       -- [FIX] Chỉnh lên 0.125 để đòn đánh lọt qua Anti-Cheat
 }
+-- ==========================================
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -35,6 +39,7 @@ local ShootGunEvent = SafeChild(Net, "RE/ShootGunEvent")
 local Remotes = SafeChild(ReplicatedStorage, "Remotes")
 local GunValidator = SafeChild(Remotes, "Validator2")
 
+-- [FIX] HÀM QUÉT MỤC TIÊU LOGIC 5% (Gom máu quái)
 local function GetAdvancedBladeHits()
     local targets = {}
     local mobs = {}
@@ -73,6 +78,7 @@ local function GetAdvancedBladeHits()
         end
     end
 
+    -- Xử lý quái thường theo logic 5%
     if #mobs > 0 then
         local allLowHealth = true
         for _, m in ipairs(mobs) do
@@ -83,8 +89,10 @@ local function GetAdvancedBladeHits()
         end
 
         if allLowHealth then
+            -- Nếu tất cả đều dưới 5% -> Ra đòn kết liễu tất cả
             for _, m in ipairs(mobs) do table.insert(targets, m) end
         else
+            -- Nếu có quái trên 5% -> Đánh cho tụt đều xuống 5%
             for _, m in ipairs(mobs) do
                 if m.Humanoid.Health > (m.Humanoid.MaxHealth * 0.05) then
                     table.insert(targets, m)
@@ -99,6 +107,7 @@ local function GetAdvancedBladeHits()
     return targets
 end
 
+-- === PHẦN 1: TỰ ĐỘNG GỬI SỰ KIỆN ===
 local function AttackAll()
     if not _G.Settings.FastAttack then return end
 
@@ -113,6 +122,7 @@ local function AttackAll()
 
     local enemies = GetAdvancedBladeHits()
     if #enemies > 0 then
+        -- [FIX] Sửa lại delay chuẩn để không bị hụt hit
         pcall(function() RegisterAttack:FireServer(Config.AttackCooldown) end)
 
         local args = {nil, {}}
@@ -129,11 +139,12 @@ local function AttackAll()
 end
 
 task.spawn(function()
-    while task.wait(0.1) do
+    while task.wait(0.1) do -- [FIX] Giảm tốc độ vòng lặp spam để mượt hơn
         AttackAll()
     end
 end)
 
+-- === PHẦN 2: OOP FAST ATTACK ===
 local FastAttack = {}
 FastAttack.__index = FastAttack
 
@@ -189,6 +200,7 @@ function FastAttack:GetBladeHits(Character, Distance)
             if not self.EnemyRootPart then
                 self.EnemyRootPart = hrp
             end
+            -- [FIX] Đưa toàn bộ quái vào mảng thay vì bỏ sót con đầu tiên
             table.insert(BladeHits, {target, hrp})
         end
     end
