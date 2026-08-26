@@ -33,14 +33,14 @@ local r={
 Darker={
 Colors={
 Background=ColorSequence.new{
-ColorSequenceKeypoint.new(0.00,Color3.fromRGB(10,10,12)),
-ColorSequenceKeypoint.new(0.50,Color3.fromRGB(18,18,20)),
-ColorSequenceKeypoint.new(1.00,Color3.fromRGB(10,10,12))
+ColorSequenceKeypoint.new(0.00,Color3.fromRGB(25,25,25)),
+ColorSequenceKeypoint.new(0.50,Color3.fromRGB(32.5,32.5,32.5)),
+ColorSequenceKeypoint.new(1.00,Color3.fromRGB(25,25,25))
 },
-Primary=Color3.fromRGB(30,30,33),
-OnPrimary=Color3.fromRGB(22,22,24),
-ScrollBar=Color3.fromRGB(45,45,48),
-Stroke=Color3.fromRGB(30,30,33),
+Primary=Color3.fromRGB(88,101,242),
+OnPrimary=Color3.fromRGB(61,67,135),
+ScrollBar=Color3.fromRGB(1,76,105),
+Stroke=Color3.fromRGB(45,45,45),
 
 Error=Color3.fromRGB(255,102,102),
 Icons=Color3.fromRGB(232,233,235),
@@ -49,27 +49,27 @@ JoinButton=Color3.fromRGB(37,128,69),
 Link=Color3.fromRGB(40,150,255),
 
 Dialog={
-Background=Color3.fromRGB(14,14,16)
+Background=Color3.fromRGB(28,28,28)
 },
 Buttons={
-Holding=Color3.fromRGB(28,28,32),
-Default=Color3.fromRGB(18,18,20)
+Holding=Color3.fromRGB(34,34,34),
+Default=Color3.fromRGB(28,28,30)
 },
 Border={
-Holding=Color3.fromRGB(45,45,50),
-Default=Color3.fromRGB(28,28,32),
+Holding=Color3.fromRGB(60,60,60),
+Default=Color3.fromRGB(38,38,38),
 },
 Text={
-Default=Color3.fromRGB(235,235,238),
-Dark=Color3.fromRGB(180,180,185),
-Darker=Color3.fromRGB(135,135,140),
+Default=Color3.fromRGB(255,255,255),
+Dark=Color3.fromRGB(200,200,200),
+Darker=Color3.fromRGB(175,175,175),
 },
 Slider={
-SliderBar=Color3.fromRGB(50,50,55),
-SliderNumber=Color3.fromRGB(230,230,235),
+SliderBar=Color3.fromRGB(1,76,105),
+SliderNumber=Color3.fromRGB(232,233,235),
 },
 Dropdown={
-Holder=Color3.fromRGB(16,16,18)
+Holder=Color3.fromRGB(30,30,30),
 }
 },
 Icons={
@@ -91,7 +91,7 @@ Bold=Enum.Font.BuilderSansBold,
 ExtraBold=Enum.Font.BuilderSansExtraBold,
 SliderValue=Enum.Font.FredokaOne
 },
-BackgroundTransparency=0.08 -- ĐEN TUYỀN DỊU MẮT - đẹp cực
+BackgroundTransparency=0.35 -- XUYÊN QUA
 }
 }
 
@@ -3635,12 +3635,13 @@ BackgroundTransparency=1,
 ClipsDescendants=true -- FIX BÊN TRONG PANEL TRÁI
 })
 
+-- Logo thay chữ M - id 127729348105692
 local logo=E("ImageLabel","Logo",leftPanel,{
-Size=UDim2.new(0,85,0,85),
+Size=UDim2.new(0,68,0,68),
 Position=UDim2.new(0.5,0,0,8),
 AnchorPoint=Vector2.new(0.5,0),
 BackgroundTransparency=1,
-Image="rbxassetid://85835534657455",
+Image="rbxassetid://114815911394724",
 ScaleType=Enum.ScaleType.Fit
 })
 E("UICorner",{CornerRadius=UDim.new(0,8)}).Parent=logo
