@@ -1,3 +1,18 @@
+
+-- =========================================
+-- REDZ LIBRARY V5 - BẢN CHỈNH NHẸ NHÌN XUYÊN QUA
+-- Ngày: 21/06/2026
+-- Thay đổi:
+--  • BackgroundTransparency: 0.03 → 0.35 (menu trong suốt)
+--  • Thêm comment phân vùng cho dễ đọc
+--  • FIX: Khi thu nhỏ menu không bị lòi logo/thanh tìm kiếm ra ngoài
+--  • FIX: Thanh tìm kiếm đã có thể tìm được tất cả tính năng trong full tab
+--  • KHÔNG xóa menu, KHÔNG đổi logic → đảm bảo chạy
+-- =========================================
+
+-- Fixed version of redz-library-v5
+-- Cleaned: removed line numbers, added missing spaces
+
 local a=cloneref or (function(...) return...end)
 
 local b=delfolder or deletefolder
@@ -3641,7 +3656,7 @@ Size=UDim2.new(0,68,0,68),
 Position=UDim2.new(0.5,0,0,8),
 AnchorPoint=Vector2.new(0.5,0),
 BackgroundTransparency=1,
-Image="rbxassetid://114815911394724",
+Image="rbxassetid://127729348105692",
 ScaleType=Enum.ScaleType.Fit
 })
 E("UICorner",{CornerRadius=UDim.new(0,8)}).Parent=logo
